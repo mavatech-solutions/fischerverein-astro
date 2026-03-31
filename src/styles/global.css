@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #15B29B;
+  --color-secondary: #117a65;
+  --color-accent: #d4ac0d;
+   --color-dark: #232323;
+}
+
+
+/* Globale Klassen */
+.heading-hero {
+  background-color: var(--color-secondary);
+  min-height: 100svh;
+}

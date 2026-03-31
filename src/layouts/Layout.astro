@@ -1,0 +1,177 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Fischerverein – Webseite" } = Astro.props;
+---
+
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Fischerverein</title>
+  </head>
+  <body class="min-h-screen bg-gray-50 flex flex-col">
+    <header class="bg-white text-[var(--color-dark)]  shadow-md">
+      <nav
+        class="container mx-auto px-4 py-4 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <a href="/" class="text-xl font-bold">🎣 Fischerverein</a>
+
+        <!-- Desktop Links -->
+        <ul class="hidden md:flex items-center gap-6 text-sm font-medium">
+          <li><a href="/" class="hover:text-[var(--color-secondary)]">Startseite</a></li>
+          <li><a href="/verein" class="hover:text-[var(--color-secondary)]">Über uns</a></li>
+          <li><a href="/galerie" class="hover:text-[var(--color-secondary)]">Galerie</a></li>
+          <li><a href="/kontakt" class="hover:text-[var(--color-secondary)]">Kontakt</a></li>
+          <li>
+            <a
+              href="/mitglieder/login"
+              class="bg-[var(--color-primary)] text-white px-4 py-2 rounded-full font-bold hover:bg-[var(--color-secondary)]"
+            >
+              Mitglieder
+            </a>
+          </li>
+        </ul>
+
+        <!-- Hamburger Button (nur Mobile) -->
+        <button id="open-menu" class="md:hidden">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Offcanvas Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+    <!-- Offcanvas Menu -->
+    <div
+      id="offcanvas"
+      class="fixed top-0 right-0 h-full w-72 bg-[var(--color-primary)] text-white z-50 transform translate-x-full transition-transform duration-300 shadow-xl"
+    >
+      <div
+        class="flex items-center justify-between p-4 border-b border-blue-700"
+      >
+        <span class="font-bold text-lg">🎣 Menü</span>
+        <button id="close-menu">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <ul class="flex flex-col p-4 gap-4 font-medium">
+        <li><a href="/" class="block hover:text-[var(--color-secondary)]">Startseite</a></li>
+        <li>
+          <a href="/verein" class="block hover:text-[var(--color-secondary)]">Über uns</a>
+        </li>
+        <li>
+          <a href="/galerie" class="block hover:text-[var(--color-secondary)]">Galerie</a>
+        </li>
+        <li>
+          <a href="/kontakt" class="block hover:text-[var(--color-secondary)]">Kontakt</a>
+        </li>
+        <li class="mt-4">
+          <a
+            href="/mitglieder/login"
+            class="block bg-[var(--color-dark)] text-white px-4 py-2 rounded-full font-bold text-center hover:bg-[var(--color-secondary)]"
+          >
+            Mitgliederbereich
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      const openBtn = document.getElementById("open-menu");
+      const closeBtn = document.getElementById("close-menu");
+      const offcanvas = document.getElementById("offcanvas");
+      const overlay = document.getElementById("overlay");
+
+      openBtn?.addEventListener("click", () => {
+        offcanvas?.classList.remove("translate-x-full");
+        overlay?.classList.remove("hidden");
+      });
+
+      const close = () => {
+        offcanvas?.classList.add("translate-x-full");
+        overlay?.classList.add("hidden");
+      };
+
+      closeBtn?.addEventListener("click", close);
+      overlay?.addEventListener("click", close);
+    </script>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="bg-[var(--color-primary)] text-white mt-12 hidden">
+      <div
+        class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8"
+      >
+        <div>
+          <h3 class="font-bold text-[#d4ac0d] mb-2">🎣 Fischerverein</h3>
+          <p class="text-sm text-gray-300">
+            Ihr lokaler Fischerverein – Gemeinschaft, Natur und Tradition.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-[var(--color-dark)] mb-2">Links</h3>
+          <ul class="text-sm text-gray-300 space-y-1">
+            <li><a href="/verein" class="hover:text-white">Über uns</a></li>
+            <li><a href="/galerie" class="hover:text-white">Galerie</a></li>
+            <li><a href="/kontakt" class="hover:text-white">Kontakt</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold text-[#d4ac0d] mb-2">Rechtliches</h3>
+          <ul class="text-sm text-gray-300 space-y-1">
+            <li><a href="/impressum" class="hover:text-[var(--color-dark)]">Impressum</a></li>
+            <li>
+              <a href="/datenschutz" class="hover:text-[var(--color-dark)]">Datenschutz</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div
+        class="border-t border-[var(--color-dark)] text-center text-xs text-[var(--color-dark)] py-4"
+      >
+        © {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.
+      </div>
+    </footer>
+
+    <script>
+      const btn = document.getElementById("mobile-menu-btn");
+      const menu = document.getElementById("mobile-menu");
+      btn?.addEventListener("click", () => menu?.classList.toggle("hidden"));
+    </script>
+  </body>
+</html>
