@@ -1,15 +1,98 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Badge from "../components/Badge.astro";
+import CountUp from "../components/CountUp.jsx";
 ---
 
 <Layout title="Startseite">
-  <div class="heading-hero">
+  <div class="heading-hero flex justify-center items-center">
     <div class="container mx-auto px-4 py-8">
-      <h1 class="text-4xl font-bold mb-4">Welcome to My Astro Site</h1>
-      <p class="text-lg text-gray-700">
-        This is the homepage of my Astro site. Explore the content and enjoy
-        your stay!
-      </p>
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 md:col-span-5">
+          <Badge text="Willkommen bei Fischerverein" />
+          <h1 class="text-4xl font-bold mb-4 text-white">
+            Gemeinsam am Wasser, gemeinsam erleben.
+          </h1>
+          <p class="text-lg text-white">
+            Seit über 50 Jahren verbindet uns die Leidenschaft fürs Angeln.
+            Werde Teil unserer Gemeinschaft und entdecke die schönsten Gewässer
+            der Region.
+          </p>
+        </div>
+        <div class="col-span-12 md:col-span-5 md:col-start-8"></div>
+      </div>
     </div>
   </div>
+
+  <div class="container mx-auto counter-container">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-3">
+        <div class="bg-gray-200 flex flex-col items-center justify-center py-8 counter-card">
+          <CountUp
+            client:load
+            from={0}
+            to={100}
+            separator=","
+            direction="up"
+            duration={1}
+            className="text-4xl font-bold count-up-text"
+            startWhen={true}
+          />
+          <p class="text-md">Unsere Erfolge</p>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3">
+        <div class="bg-gray-200 flex flex-col items-center justify-center py-8 counter-card">
+          <CountUp
+            client:load
+            from={0}
+            to={100}
+            separator=","
+            direction="up"
+            duration={1}
+            className="text-4xl font-bold count-up-text"
+            startWhen={true}
+          />
+          <p class="text-md">Unsere Erfolge</p>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3">
+        <div class="bg-gray-200 flex flex-col items-center justify-center py-8 counter-card">
+          <CountUp
+            client:load
+            from={0}
+            to={100}
+            separator=","
+            direction="up"
+            duration={1}
+            className="text-4xl font-bold count-up-text"
+            startWhen={true}
+          />
+          <p class="text-md">Unsere Erfolge</p>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3 ">
+        <div class="bg-gray-200 flex flex-col items-center justify-center py-8 counter-card">
+          <CountUp
+            client:visible
+            from={0}
+            to={100}
+            separator=","
+            direction="up"
+            duration={1}
+            className="text-4xl font-bold  count-up-text"
+            startWhen={true}
+          />
+          <p class="text-md">Unsere Erfolge</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-64"></div>
+
+  
 </Layout>

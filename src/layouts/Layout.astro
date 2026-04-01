@@ -17,9 +17,15 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title} | Fischerverein</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body class="min-h-screen bg-gray-50 flex flex-col">
-    <header class="bg-white text-[var(--color-dark)]  shadow-md">
+    <header class="bg-white text-[var(--color-dark)] shadow-md">
       <nav
         class="container mx-auto px-4 py-4 flex items-center justify-between"
       >
@@ -28,19 +34,34 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
 
         <!-- Desktop Links -->
         <ul class="hidden md:flex items-center gap-6 text-sm font-medium">
-          <li><a href="/" class="hover:text-[var(--color-secondary)]">Startseite</a></li>
-          <li><a href="/verein" class="hover:text-[var(--color-secondary)]">Über uns</a></li>
-          <li><a href="/galerie" class="hover:text-[var(--color-secondary)]">Galerie</a></li>
-          <li><a href="/kontakt" class="hover:text-[var(--color-secondary)]">Kontakt</a></li>
           <li>
-            <a
-              href="/mitglieder/login"
-              class="bg-[var(--color-primary)] text-white px-4 py-2 rounded-full font-bold hover:bg-[var(--color-secondary)]"
+            <a href="/" class="hover:text-[var(--color-secondary)]"
+              >Startseite</a
             >
-              Mitglieder
-            </a>
+          </li>
+          <li>
+            <a href="/verein" class="hover:text-[var(--color-secondary)]"
+              >Über uns</a
+            >
+          </li>
+          <li>
+            <a href="/galerie" class="hover:text-[var(--color-secondary)]"
+              >Galerie</a
+            >
+          </li>
+          <li>
+            <a href="/kontakt" class="hover:text-[var(--color-secondary)]"
+              >Kontakt</a
+            >
           </li>
         </ul>
+
+        <a
+          href="/mitglieder/login"
+          class="hidden md:inline-block bg-[var(--color-primary)] text-white text-sm px-4 py-2 rounded-full font-bold hover:bg-[var(--color-secondary)]"
+        >
+          Mitglieder
+        </a>
 
         <!-- Hamburger Button (nur Mobile) -->
         <button id="open-menu" class="md:hidden">
@@ -88,15 +109,25 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         </button>
       </div>
       <ul class="flex flex-col p-4 gap-4 font-medium">
-        <li><a href="/" class="block hover:text-[var(--color-secondary)]">Startseite</a></li>
         <li>
-          <a href="/verein" class="block hover:text-[var(--color-secondary)]">Über uns</a>
+          <a href="/" class="block hover:text-[var(--color-secondary)]"
+            >Startseite</a
+          >
         </li>
         <li>
-          <a href="/galerie" class="block hover:text-[var(--color-secondary)]">Galerie</a>
+          <a href="/verein" class="block hover:text-[var(--color-secondary)]"
+            >Über uns</a
+          >
         </li>
         <li>
-          <a href="/kontakt" class="block hover:text-[var(--color-secondary)]">Kontakt</a>
+          <a href="/galerie" class="block hover:text-[var(--color-secondary)]"
+            >Galerie</a
+          >
+        </li>
+        <li>
+          <a href="/kontakt" class="block hover:text-[var(--color-secondary)]"
+            >Kontakt</a
+          >
         </li>
         <li class="mt-4">
           <a
@@ -154,9 +185,15 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         <div>
           <h3 class="font-bold text-[#d4ac0d] mb-2">Rechtliches</h3>
           <ul class="text-sm text-gray-300 space-y-1">
-            <li><a href="/impressum" class="hover:text-[var(--color-dark)]">Impressum</a></li>
             <li>
-              <a href="/datenschutz" class="hover:text-[var(--color-dark)]">Datenschutz</a>
+              <a href="/impressum" class="hover:text-[var(--color-dark)]"
+                >Impressum</a
+              >
+            </li>
+            <li>
+              <a href="/datenschutz" class="hover:text-[var(--color-dark)]"
+                >Datenschutz</a
+              >
             </li>
           </ul>
         </div>

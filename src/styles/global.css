@@ -7,9 +7,36 @@
    --color-dark: #232323;
 }
 
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--color-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+
 
 /* Globale Klassen */
 .heading-hero {
   background-color: var(--color-secondary);
-  min-height: 100svh;
+  min-height: 90svh;
+}
+
+/* COUNTER */
+.counter-card {
+  border-radius: 1rem;
+}
+.counter-container {
+  transform: translateY(-60px) !important;
+}
+
+
+/* Breakpoints */
+
+@media (min-width: 768px) {
+  .counter-container {
+    transform: translateY(-50%);
+  }
 }
