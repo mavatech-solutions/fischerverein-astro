@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   --color-primary: #15B29B;
   --color-secondary: #117a65;
@@ -16,7 +17,31 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
 }
 
+h1, .h1 {
+  font-size: clamp(2.5rem, 3vw, 3.5rem);
+  line-height: 1.1;
+  font-weight: 700;
+}
 
+h2, .h2 {
+  font-size: clamp(2.5rem, 2.5vw, 2.8rem);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+
+/* Header */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99;
+}
+
+#offcanvas {
+  z-index: 100;
+}
 
 /* Globale Klassen */
 .heading-hero {
@@ -31,6 +56,31 @@ h1, h2, h3, h4, h5, h6 {
 .counter-container {
   transform: translateY(-60px) !important;
 }
+
+.count-up-text {
+  font-family: 'Playfair Display', serif;
+  color: var(--color-secondary);
+  font-size: clamp(3rem, 1.8vw, 3.5rem);
+  margin-bottom: 1rem;
+}
+
+/* CARDS */
+.card-icon {
+  background: #e8f7f5;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+}
+
+.card-icon i {
+  font-size: 24px;
+  color: var(--color-primary);
+}
+
 
 
 /* Breakpoints */
