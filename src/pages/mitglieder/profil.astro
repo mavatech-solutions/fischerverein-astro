@@ -1,0 +1,235 @@
+---
+import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout title="Mein Profil">
+  <div class="container mx-auto px-4 py-24">
+    <p class="mb-2 text-3xl font-semibold">Mein Profil</p>
+    <p class="text-gray-500 mb-10">Verwalte deine persönlichen Daten</p>
+
+    <!-- Avatar -->
+    <div class="bg-white shadow rounded-xl p-6 mb-6">
+      <h3 class="text-lg font-bold mb-6">Profilbild</h3>
+      <div class="flex items-center gap-6">
+        <div
+          id="avatar-preview"
+          class="w-20 h-20 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-2xl font-bold overflow-hidden"
+        >
+          <span id="avatar-initials">?</span>
+          <img id="avatar-img" class="w-full h-full object-cover hidden" />
+        </div>
+        <div>
+          <label class="cursor-pointer bg-[var(--color-primary)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition">
+            Bild hochladen
+            <input type="file" id="avatar-input" accept="image/*" class="hidden" />
+          </label>
+          <p class="text-xs text-gray-400 mt-2">JPG, PNG — max. 2MB</p>
+        </div>
+      </div>
+      <p id="avatar-success" class="text-green-600 text-sm mt-4 hidden">Profilbild aktualisiert!</p>
+      <p id="avatar-error" class="text-red-500 text-sm mt-4 hidden"></p>
+    </div>
+
+    <!-- Profil Daten -->
+    <div class="bg-white shadow rounded-xl p-6 mb-6">
+      <h3 class="text-lg font-bold mb-6">Persönliche Daten</h3>
+      <form id="profile-form" class="flex flex-col gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input id="full-name" type="text" placeholder="Max Mustermann"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+          <input id="email" type="email" disabled
+            class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
+        </div>
+        <p id="profile-success" class="text-green-600 text-sm hidden">Profil gespeichert!</p>
+        <p id="profile-error" class="text-red-500 text-sm hidden"></p>
+        <button type="submit"
+          class="w-full bg-[var(--color-primary)] text-white py-2 rounded-md font-semibold hover:opacity-90 transition">
+          Speichern
+        </button>
+      </form>
+    </div>
+
+    <!-- Passwort -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h3 class="text-lg font-bold mb-6">Passwort ändern</h3>
+      <form id="password-form" class="flex flex-col gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Neues Passwort</label>
+          <input id="new-password" type="password" placeholder="••••••••"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
+          <input id="confirm-password" type="password" placeholder="••••••••"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <p id="password-success" class="text-green-600 text-sm hidden">Passwort geändert!</p>
+        <p id="password-error" class="text-red-500 text-sm hidden"></p>
+        <button type="submit"
+          class="w-full bg-[var(--color-primary)] text-white py-2 rounded-md font-semibold hover:opacity-90 transition">
+          Passwort ändern
+        </button>
+      </form>
+    </div>
+  </div>
+</ProtectedLayout>
+
+<script>
+  import { supabase } from "../../lib/supabase.js";
+
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  function getJwt() {
+    const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+    const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+    return stored?.access_token || SUPABASE_KEY;
+  }
+
+  function authHeaders() {
+    return {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${getJwt()}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  // Session aus localStorage lesen
+  const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+  const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+  const userId = stored?.user?.id;
+  const userEmail = stored?.user?.email;
+
+  if (!userId) {
+    window.location.href = "/mitglieder/login";
+  }
+
+  // Profil laden
+  const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=*`, {
+    headers: authHeaders(),
+  });
+  const profileData = await profileRes.json();
+  const profile = profileData?.[0];
+
+  // Felder befüllen
+  (document.getElementById("email") as HTMLInputElement).value = userEmail || "";
+  (document.getElementById("full-name") as HTMLInputElement).value = profile?.full_name || "";
+
+  // Avatar anzeigen
+  if (profile?.avatar_url) {
+    const img = document.getElementById("avatar-img") as HTMLImageElement;
+    const initials = document.getElementById("avatar-initials");
+    img.src = profile.avatar_url;
+    img.classList.remove("hidden");
+    initials?.classList.add("hidden");
+  } else if (profile?.full_name) {
+    const initials = document.getElementById("avatar-initials");
+    if (initials) initials.textContent = profile.full_name.charAt(0).toUpperCase();
+  }
+
+  // Avatar Upload
+  document.getElementById("avatar-input")?.addEventListener("change", async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const avatarSuccess = document.getElementById("avatar-success");
+    const avatarError = document.getElementById("avatar-error");
+    avatarSuccess?.classList.add("hidden");
+    avatarError?.classList.add("hidden");
+
+    if (file.size > 2 * 1024 * 1024) {
+      avatarError?.classList.remove("hidden");
+      avatarError!.textContent = "Datei ist zu groß (max. 2MB)";
+      return;
+    }
+
+    const fileExt = file.name.split(".").pop();
+    const filePath = `${userId}/avatar.${fileExt}`;
+
+    const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/avatar/${filePath}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${getJwt()}`,
+        'x-upsert': 'true',
+        'Content-Type': file.type || 'application/octet-stream',
+      },
+      body: file,
+    });
+
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json().catch(() => ({}));
+      avatarError?.classList.remove("hidden");
+      avatarError!.textContent = err.message || 'Upload fehlgeschlagen';
+      return;
+    }
+
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatar/${filePath}`;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ avatar_url: publicUrl }),
+    });
+
+    const img = document.getElementById("avatar-img") as HTMLImageElement;
+    img.src = publicUrl;
+    img.classList.remove("hidden");
+    document.getElementById("avatar-initials")?.classList.add("hidden");
+    avatarSuccess?.classList.remove("hidden");
+  });
+
+  // Profil speichern
+  document.getElementById("profile-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fullName = (document.getElementById("full-name") as HTMLInputElement).value;
+    const successEl = document.getElementById("profile-success");
+    const errorEl = document.getElementById("profile-error");
+    successEl?.classList.add("hidden");
+    errorEl?.classList.add("hidden");
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ full_name: fullName }),
+    });
+
+    if (res.ok) {
+      successEl?.classList.remove("hidden");
+    } else {
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = "Fehler beim Speichern";
+    }
+  });
+
+  // Passwort ändern
+  document.getElementById("password-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newPassword = (document.getElementById("new-password") as HTMLInputElement).value;
+    const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement).value;
+    const successEl = document.getElementById("password-success");
+    const errorEl = document.getElementById("password-error");
+    successEl?.classList.add("hidden");
+    errorEl?.classList.add("hidden");
+
+    if (newPassword !== confirmPassword) {
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = "Passwörter stimmen nicht überein!";
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = error.message;
+    } else {
+      successEl?.classList.remove("hidden");
+      (e.target as HTMLFormElement).reset();
+    }
+  });
+</script>

@@ -1,0 +1,23 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title}>
+  <div id="page-content" style="display:none">
+    <slot />
+  </div>
+</Layout>
+
+<script is:inline>
+  if (!document.cookie.includes('sb-auth=1')) {
+    window.location.replace('/mitglieder/login');
+  } else {
+    document.getElementById('page-content').style.display = 'block';
+  }
+</script>

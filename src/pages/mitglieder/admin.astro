@@ -1,0 +1,237 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Admin Dashboard">
+  <div class="container mx-auto px-4 py-24">
+    <p class="mb-2 text-3xl font-semibold">Admin Dashboard</p>
+    <p class="text-gray-500 mb-10">Mitgliederverwaltung</p>
+
+    <!-- Neuen User erstellen -->
+    <div class="bg-white shadow rounded-xl p-6 mb-10">
+      <h2 class="h3 mb-6">Neues Mitglied erstellen</h2>
+      <form id="create-user-form" class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 md:col-span-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Name</label
+          >
+          <input
+            id="new-name"
+            type="text"
+            placeholder="Max Mustermann"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >E-Mail</label
+          >
+          <input
+            id="new-email"
+            type="email"
+            placeholder="max@email.de"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+
+        <div class="col-span-12 md:col-span-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Passwort</label
+          >
+          <input
+            id="new-password"
+            type="password"
+            placeholder="••••••••"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+
+        <div class="col-span-12 md:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Rolle</label
+          >
+          <select
+            id="new-role"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+          >
+            <option value="user">Mitglied</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="col-span-12 flex items-end">
+          <button
+            type="submit"
+            class="bg-[var(--color-primary)] text-white px-6 py-2 rounded-md font-semibold hover:opacity-90 transition"
+          >
+            Erstellen
+          </button>
+        </div>
+        <p id="create-error" class="col-span-12 text-red-500 text-sm hidden">
+        </p>
+        <p
+          id="create-success"
+          class="col-span-12 text-green-600 text-sm hidden"
+        >
+        </p>
+      </form>
+    </div>
+
+    <!-- User Liste -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h2 class="h3 mb-6">Alle Mitglieder</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-gray-100 text-gray-600">
+            <tr>
+              <th class="px-4 py-3 rounded-l-lg">Name</th>
+              <th class="px-4 py-3">E-Mail</th>
+              <th class="px-4 py-3">Rolle</th>
+              <th class="px-4 py-3">Erstellt am</th>
+              <th class="px-4 py-3 rounded-r-lg">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <tr>
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400"
+                >Lädt...</td
+              >
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  function getJwt() {
+    const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+    const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+    return stored?.access_token || SUPABASE_KEY;
+  }
+
+  function headers() {
+    return {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${getJwt()}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async function deleteUser(id: string, name: string) {
+    if (!confirm(`Mitglied "${name}" wirklich löschen?`)) return;
+
+    const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    });
+    if (!profileRes.ok) {
+      alert('Fehler beim Löschen des Profils: ' + profileRes.status);
+      return;
+    }
+
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/delete_user_completely`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ user_id: id }),
+    });
+    if (!rpcRes.ok) {
+      alert('Fehler beim Löschen des Auth-Users: ' + rpcRes.status);
+      return;
+    }
+
+    loadUsers();
+  }
+
+  (window as any).deleteUser = deleteUser;
+
+  async function loadUsers() {
+    const tbody = document.getElementById("user-table-body");
+    if (!tbody) return;
+
+    let data: any[];
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*&order=created_at.desc`, {
+        headers: headers(),
+      });
+      data = await res.json();
+    } catch(e: any) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-red-500">Fehler: ${e.message}</td></tr>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Keine Mitglieder gefunden.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map((user) => `
+      <tr class="border-t border-gray-100">
+        <td class="px-4 py-3">${user.full_name || "—"}</td>
+        <td class="px-4 py-3">${user.email || "—"}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${user.role === "admin" ? "bg-[#d1e5e3] text-[var(--color-primary)]" : "bg-gray-100 text-gray-600"}">
+            ${user.role === "admin" ? "Admin" : "Mitglied"}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-gray-400">${new Date(user.created_at).toLocaleDateString("de-DE")}</td>
+        <td class="px-4 py-3">
+          <button onclick="deleteUser('${user.id}', '${user.full_name || user.email}')"
+            class="text-red-500 hover:text-red-700 text-sm font-medium">Löschen</button>
+        </td>
+      </tr>`).join("");
+  }
+
+  loadUsers();
+
+  // Neuen User erstellen
+  document.getElementById("create-user-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = (document.getElementById("new-email") as HTMLInputElement).value;
+    const password = (document.getElementById("new-password") as HTMLInputElement).value;
+    const name = (document.getElementById("new-name") as HTMLInputElement).value;
+    const role = (document.getElementById("new-role") as HTMLSelectElement).value;
+    const errorEl = document.getElementById("create-error");
+    const successEl = document.getElementById("create-success");
+
+    errorEl?.classList.add("hidden");
+    successEl?.classList.add("hidden");
+
+    // User erstellen (raw fetch — ändert Admin-Session nicht)
+    const signUpRes = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const signUpData = await signUpRes.json();
+
+    if (!signUpRes.ok || signUpData.error) {
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = signUpData.error?.message || signUpData.msg || 'Fehler beim Erstellen';
+      return;
+    }
+
+    const newUserId = signUpData.user?.id;
+
+    // Profil erstellen/aktualisieren via RPC (SECURITY DEFINER → bypasses RLS)
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_or_update_profile`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        target_id: newUserId,
+        target_email: email,
+        target_name: name,
+        target_role: role,
+      }),
+    });
+    successEl?.classList.remove("hidden");
+    successEl!.textContent = `Mitglied "${name}" wurde erstellt!`;
+    (e.target as HTMLFormElement).reset();
+    loadUsers();
+  });
+</script>

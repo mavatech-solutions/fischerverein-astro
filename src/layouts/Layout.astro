@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import MuiButton from "../components/MuiButton.jsx";
 
-
 interface Props {
   title: string;
   description?: string;
@@ -25,8 +24,22 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
 
+    <script is:inline>
+      try {
+        const isAuthed = document.cookie.includes("sb-auth=1");
+        const isAdmin = document.cookie.includes("sb-role=admin");
+        document.documentElement.dataset.authed = isAuthed ? "true" : "false";
+        document.documentElement.dataset.admin = isAdmin ? "true" : "false";
+      } catch (e) {
+        document.documentElement.dataset.authed = "false";
+        document.documentElement.dataset.admin = "false";
+      }
+    </script>
   </head>
   <body class="min-h-screen bg-gray-50 flex flex-col">
     <header class="bg-white text-[var(--color-dark)] shadow-md">
@@ -37,7 +50,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         <a href="/" class="text-xl font-bold">🎣 Fischerverein</a>
 
         <!-- Desktop Links -->
-        <ul class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <ul class="hidden md:flex items-center gap-6 text-base font-medium">
           <li>
             <a href="/" class="hover:text-[var(--color-secondary)]"
               >Startseite</a
@@ -60,13 +73,76 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
           </li>
         </ul>
 
-        <a
-          href="/mitglieder/login"
-          class="login-btn hidden md:inline-block"
-        >
-          <MuiButton client:load text="Login" size="medium" />
-        </a>
+        <!-- Login Button (ausgeloggt) -->
+        <div id="auth-wrapper">
+          <a
+            id="login-btn"
+            href="/mitglieder/login"
+            class="hidden md:inline-block"
+          >
+            <MuiButton client:only="react" text="Login" size="medium" />
+          </a>
 
+          <!-- Avatar (eingeloggt) -->
+          <div id="avatar-menu" class="hidden relative">
+            <button
+              id="avatar-btn"
+              class="flex items-center gap-1 hover:opacity-80 transition"
+            >
+              <span
+                id="avatar-circle"
+                class="w-10 h-10 rounded-full bg-[var(--color-primary)] text-white font-bold flex items-center justify-center overflow-hidden bg-cover bg-center"
+              >
+                <span id="avatar-initial">?</span>
+              </span>
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <script is:inline>
+              try {
+                const cached = localStorage.getItem('sb-avatar-cache');
+                if (cached) {
+                  const { uid, avatar_url, full_name } = JSON.parse(cached);
+                  const sk = Object.keys(localStorage).find(k => k.includes('auth-token'));
+                  const st = sk ? JSON.parse(localStorage.getItem(sk) || '{}') : {};
+                  if (st?.user?.id === uid) {
+                    const el = document.getElementById('avatar-circle');
+                    const init = document.getElementById('avatar-initial');
+                    if (avatar_url && el) { el.style.backgroundImage = `url(${avatar_url})`; if(init) init.style.display='none'; }
+                    else if (full_name && init) { init.textContent = full_name.charAt(0).toUpperCase(); }
+                  }
+                }
+              } catch(e) {}
+            </script>
+            <div
+              id="avatar-dropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl py-2 z-50"
+            >
+              <a
+                href="/mitglieder/dashboard"
+                class="block px-4 py-2 text-sm hover:bg-gray-100">Dashboard</a
+              >
+              <a
+                id="admin-link"
+                href="/mitglieder/admin"
+                class="block px-4 py-2 text-sm hover:bg-gray-100"
+                style="display:none">Admin</a
+              >
+              <a
+                href="/mitglieder/profil"
+                class="block px-4 py-2 text-sm hover:bg-gray-100">Profil</a
+              >
+              <hr class="my-1" />
+              <button
+                id="logout-btn"
+                class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+              >
+                Abmelden
+              </button>
+            </div>
+          </div>
+        </div>
         <!-- Hamburger Button (nur Mobile) -->
         <button id="open-menu" class="md:hidden">
           <svg
@@ -134,10 +210,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
           >
         </li>
         <li class="mt-4">
-          <a
-            href="/mitglieder/login"
-            class=""
-          >
+          <a href="/mitglieder/login" class="">
             <MuiButton client:load text="Login" btnType="dark" size="small" />
           </a>
         </li>
@@ -168,34 +241,65 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       <slot />
     </main>
 
-    <footer class="bg-[var(--color-primary)] text-white mt-12 hidden">
-      <div
-        class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8"
-      >
-        <div>
-          <h3 class="font-bold text-[#d4ac0d] mb-2">🎣 Fischerverein</h3>
-          <p class="text-sm text-gray-300">
+    <footer class="bg-white text-white mt-12">
+      <div class="container mx-auto px-4 py-8 grid grid-cols-12 gap-6">
+        <div class="col-span-12 md:col-span-3 text-center md:text-left">
+          <h3 class="font-bold text-[var(--color-secondary)] mb-2">
+            🎣 Fischerverein
+          </h3>
+          <p class="text-base text-[var(--color-dark)]">
             Ihr lokaler Fischerverein – Gemeinschaft, Natur und Tradition.
           </p>
         </div>
-        <div>
-          <h3 class="font-bold text-[var(--color-dark)] mb-2">Links</h3>
-          <ul class="text-sm text-gray-300 space-y-1">
-            <li><a href="/verein" class="hover:text-white">Über uns</a></li>
-            <li><a href="/galerie" class="hover:text-white">Galerie</a></li>
-            <li><a href="/kontakt" class="hover:text-white">Kontakt</a></li>
+        <div
+          class="col-span-12 md:col-span-2 md:col-start-5 text-center md:text-left"
+        >
+          <h3 class="font-bold text-[var(--color-secondary)] mb-2">Links</h3>
+          <ul class="text-base text-[var(--color-dark)] space-y-1">
+            <li>
+              <a href="/verein" class="hover:text-[var(--color-secondary)]"
+                >Über uns</a
+              >
+            </li>
+            <li>
+              <a href="/galerie" class="hover:text-[var(--color-secondary)]"
+                >Galerie</a
+              >
+            </li>
+            <li>
+              <a href="/kontakt" class="hover:text-[var(--color-secondary)]"
+                >Kontakt</a
+              >
+            </li>
           </ul>
         </div>
-        <div>
-          <h3 class="font-bold text-[#d4ac0d] mb-2">Rechtliches</h3>
-          <ul class="text-sm text-gray-300 space-y-1">
+        <div class="col-span-12 md:col-span-2 text-center md:text-left">
+          <h3 class="font-bold text-[var(--color-secondary)] mb-2">
+            Rechtliches
+          </h3>
+          <ul class="text-base text-[var(--color-dark)] space-y-1">
             <li>
-              <a href="/impressum" class="hover:text-[var(--color-dark)]"
+              <a href="/impressum" class="hover:text-[var(--color-secondary)]"
                 >Impressum</a
               >
             </li>
             <li>
-              <a href="/datenschutz" class="hover:text-[var(--color-dark)]"
+              <a href="/datenschutz" class="hover:text-[var(--color-secondary)]"
+                >Datenschutz</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="col-span-12 md:col-span-2 text-center md:text-left">
+          <h3 class="font-bold text-[var(--color-secondary)] mb-2">Kontakt</h3>
+          <ul class="text-base text-[var(--color-dark)] space-y-1">
+            <li>
+              <a href="/impressum" class="hover:text-[var(--color-secondary)]"
+                >Impressum</a
+              >
+            </li>
+            <li>
+              <a href="/datenschutz" class="hover:text-[var(--color-secondary)]"
                 >Datenschutz</a
               >
             </li>
@@ -203,7 +307,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         </div>
       </div>
       <div
-        class="border-t border-[var(--color-dark)] text-center text-xs text-[var(--color-dark)] py-4"
+        class="border-t border-[var(--color-dark)] text-center text-base text-[var(--color-dark)] py-4"
       >
         © {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.
       </div>
@@ -213,6 +317,73 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       const btn = document.getElementById("mobile-menu-btn");
       const menu = document.getElementById("mobile-menu");
       btn?.addEventListener("click", () => menu?.classList.toggle("hidden"));
+    </script>
+
+    <script>
+      import { supabase } from "../lib/supabase.js";
+
+      const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+      const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+      // Session direkt aus localStorage lesen
+      const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+      const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+      const userId = stored?.user?.id;
+      const jwt = stored?.access_token;
+
+      if (userId && jwt) {
+        // Gecachten Avatar sofort anwenden (kein Flash)
+        const cached = localStorage.getItem('sb-avatar-cache');
+        if (cached) {
+          try {
+            const { uid, avatar_url, full_name } = JSON.parse(cached);
+            if (uid === userId) applyAvatar(avatar_url, full_name);
+          } catch {}
+        }
+
+        // Frische Daten nachladen
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=avatar_url,full_name`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${jwt}` }
+        })
+        .then(r => r.json())
+        .then(data => {
+          const profile = data?.[0];
+          applyAvatar(profile?.avatar_url, profile?.full_name);
+          localStorage.setItem('sb-avatar-cache', JSON.stringify({
+            uid: userId,
+            avatar_url: profile?.avatar_url,
+            full_name: profile?.full_name,
+          }));
+        })
+        .catch(() => {});
+      }
+
+      function applyAvatar(avatar_url: string, full_name: string) {
+        const avatarCircle = document.getElementById("avatar-circle") as HTMLElement;
+        const navInitial = document.getElementById("avatar-initial");
+        if (avatar_url && avatarCircle) {
+          avatarCircle.style.backgroundImage = `url(${avatar_url})`;
+          if (navInitial) navInitial.style.display = "none";
+        } else if (full_name && navInitial) {
+          navInitial.textContent = full_name.charAt(0).toUpperCase();
+        }
+      }
+
+      // Dropdown toggle
+      document.getElementById("avatar-btn")?.addEventListener("click", () => {
+        document.getElementById("avatar-dropdown")?.classList.toggle("hidden");
+      });
+
+      // Logout
+      document.getElementById("logout-btn")?.addEventListener("click", () => {
+        document.cookie = "sb-auth=; path=/; SameSite=Strict; max-age=0";
+        document.cookie = "sb-role=; path=/; SameSite=Strict; max-age=0";
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("sb-")) localStorage.removeItem(key);
+        }
+        supabase.auth.signOut().catch(() => {});
+        window.location.href = "/";
+      });
     </script>
   </body>
 </html>
