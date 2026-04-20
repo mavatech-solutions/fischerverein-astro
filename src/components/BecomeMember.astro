@@ -1,0 +1,20 @@
+---
+// optional JS/TS logic here
+const { title } = Astro.props;
+---
+
+<!-- src/components/BecomeMember.astro -->
+<div class="container mx-auto px-4">
+  <div
+    class="become-member-block bg-[var(--color-secondary)] text-white rounded-lg shadow-md p-8 text-center"
+  >
+    <div class="h-[100px]"></div>
+    <h2 class="mb-6">{title}</h2>
+    <p>
+      Werde Teil unserer Gemeinschaft. Genieße Zugang zu exklusiven Gewässern,
+      <br/>
+      Events und einer großartigen Gemeinschaft. Einfach Kontakt aufnehmen!
+    </p>
+    <div class="h-[100px]"></div>
+  </div>
+</div>

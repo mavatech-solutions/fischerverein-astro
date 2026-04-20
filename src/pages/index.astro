@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Badge from "../components/Badge.astro";
 import CountUp from "../components/CountUp.jsx";
 import MuiButton from "../components/MuiButton.jsx";
+import BecomeMember from "../components/BecomeMember.astro";
 ---
 
 <Layout title="Startseite">
@@ -43,7 +44,7 @@ import MuiButton from "../components/MuiButton.jsx";
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-12 md:col-span-3">
         <div
-          class="bg-gray-100 shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
+          class="bg-[var(--color-bg-light)] shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
         >
           <CountUp
             client:load
@@ -61,7 +62,7 @@ import MuiButton from "../components/MuiButton.jsx";
 
       <div class="col-span-12 md:col-span-3">
         <div
-          class="bg-gray-100 shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
+          class="bg-[var(--color-bg-light)] shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
         >
           <CountUp
             client:load
@@ -79,7 +80,7 @@ import MuiButton from "../components/MuiButton.jsx";
 
       <div class="col-span-12 md:col-span-3">
         <div
-          class="bg-gray-100 shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
+          class="bg-[var(--color-bg-light)] shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
         >
           <CountUp
             client:load
@@ -97,7 +98,7 @@ import MuiButton from "../components/MuiButton.jsx";
 
       <div class="col-span-12 md:col-span-3">
         <div
-          class="bg-gray-100 shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
+          class="bg-[var(--color-bg-light)] shadow-md flex flex-col items-center justify-center py-8 h-[100%] counter-card"
         >
           <CountUp
             client:visible
@@ -124,7 +125,9 @@ import MuiButton from "../components/MuiButton.jsx";
     </p>
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-12 md:col-span-6 xl:col-span-3">
-        <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
           <div class="card-icon">
             <i class="fa-solid fa-fish"></i>
           </div>
@@ -137,7 +140,9 @@ import MuiButton from "../components/MuiButton.jsx";
         </div>
       </div>
       <div class="col-span-12 md:col-span-6 xl:col-span-3">
-        <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
           <div class="card-icon">
             <i class="fa-solid fa-leaf"></i>
           </div>
@@ -150,7 +155,9 @@ import MuiButton from "../components/MuiButton.jsx";
         </div>
       </div>
       <div class="col-span-12 md:col-span-6 xl:col-span-3">
-        <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
           <div class="card-icon">
             <i class="fa-solid fa-users"></i>
           </div>
@@ -164,7 +171,9 @@ import MuiButton from "../components/MuiButton.jsx";
         </div>
       </div>
       <div class="col-span-12 md:col-span-6 xl:col-span-3">
-        <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
           <div class="card-icon">
             <i class="fa-solid fa-lightbulb"></i>
           </div>
@@ -231,13 +240,17 @@ import MuiButton from "../components/MuiButton.jsx";
             </div>
             <h3 class="font-bold mb-4 mt-6">Nachhaltigkeit</h3>
             <p>
-              Verantwortungsvoller Umgang mit der Natur steht bei uns an erster Stelle.
+              Verantwortungsvoller Umgang mit der Natur steht bei uns an erster
+              Stelle.
             </p>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="h-[100px]"></div>
+  <BecomeMember title="Jetzt Mitglied werden" />
 
   <div class="h-[100px]"></div>
 </Layout>
