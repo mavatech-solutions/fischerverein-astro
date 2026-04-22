@@ -135,3 +135,8 @@ html[data-admin="true"] #admin-link { display: block !important; }
     transform: translateY(-50%);
   }
 }
+
+.lg-outer .lg-thumb-item.active,
+.lg-outer .lg-thumb-item:hover {
+  border-color: var(--color-secondary) !important;
+}

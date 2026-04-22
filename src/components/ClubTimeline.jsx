@@ -20,8 +20,8 @@ export default function ClubTimeline({ items = [] }) {
   const prefersReducedMotion = useReducedMotion();
 
   const getCardOffset = index => {
-    if (isMobile) return 18;
-    return index % 2 === 0 ? -22 : 22;
+    if (isMobile) return -24;
+    return index % 2 === 0 ? -24 : 24;
   };
 
   return (
@@ -80,11 +80,10 @@ export default function ClubTimeline({ items = [] }) {
                     ? false
                     : {
                         opacity: 0,
-                        y: 20,
                         x: getCardOffset(index),
                       }
                 }
-                whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0, x: 0 }}
+                whileInView={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2, margin: '0px 0px -8% 0px' }}
                 transition={{ duration: 0.7, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
                 style={{
