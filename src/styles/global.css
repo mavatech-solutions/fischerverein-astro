@@ -53,7 +53,7 @@ header {
 /* Globale Klassen */
 .heading-hero {
   background-color: var(--color-secondary);
-  min-height: 100svh;
+  min-height: 95svh;
 }
 
 /* COUNTER */

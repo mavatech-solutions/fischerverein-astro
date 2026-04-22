@@ -30,7 +30,18 @@ const styles = {
   },
 };
 
-export default function MuiButton({ text, btnType = 'primary', href = undefined, size = 'medium' }) {
+/**
+ * @typedef {'primary' | 'outline' | 'dark' | 'white' | 'ghost'} ButtonType
+ * @typedef {'small' | 'medium' | 'large'} ButtonSize
+ *
+ * @param {{
+ *   text: string,
+ *   btnType?: ButtonType,
+ *   href?: string,
+ *   size?: ButtonSize
+ * }} props
+ */
+export default function MuiButton({ text, btnType = 'primary', href, size = 'medium' }) {
   const { muiVariant, sx } = styles[btnType];
   const sizeStyle = sizes[size];
 

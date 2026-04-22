@@ -1,0 +1,204 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Badge from "../components/Badge.astro";
+import BecomeMember from "../components/BecomeMember.astro";
+import { Image } from "astro:assets";
+import vereinGeschichte from "../assets/images/verein-geschichte.jpg";
+import CountUp from "../components/CountUp.jsx";
+import ClubTimeline from "../components/ClubTimeline.jsx";
+
+const timelineItems = [
+  {
+    year: "1974",
+    title: "Gründung des Vereins",
+    description:
+      "Mit einer kleinen Gruppe engagierter Angler begann die Geschichte unseres Fischervereins und legte den Grundstein für eine starke Gemeinschaft.",
+  },
+  {
+    year: "1992",
+    title: "Erstes Vereinsgewässer",
+    description:
+      "Mit dem ersten fest betreuten Gewässer konnten wir Hege, Pflege und nachhaltige Besatzmaßnahmen eigenständig organisieren.",
+  },
+  {
+    year: "2008",
+    title: "Jugendarbeit ausgebaut",
+    description:
+      "Regelmäßige Workshops, Ferienaktionen und praktische Ausbildung machten die Nachwuchsförderung zu einem festen Bestandteil des Vereinslebens.",
+  },
+  {
+    year: "Heute",
+    title: "Tradition mit Zukunft",
+    description:
+      "Heute verbindet unser Verein gelebte Tradition mit moderner Vereinsarbeit, Naturschutz und einem aktiven Miteinander am Wasser.",
+  },
+];
+---
+
+<Layout
+  title="Verein"
+  description="Erfahre mehr ueber unseren Fischerverein, unsere Geschichte und unsere Werte."
+>
+  <section class="bg-[var(--color-secondary)] text-white">
+    <div class="h-[180px]"></div>
+    <div class="container mx-auto px-4">
+      <div class="w-full min-[992px]:max-w-[50%]">
+        <h1 class="text-4xl font-bold mb-4">Über uns</h1>
+        <p class="text-lg mb-6">
+          Unser Fischerverein wurde vor über 50 Jahren gegründet und hat sich
+          seitdem zu einer lebendigen Gemeinschaft von Anglern entwickelt. Wir
+          sind stolz auf unsere reiche Geschichte und die Werte, die uns
+          verbinden.
+        </p>
+        <Badge text="Gemeinschaft" />
+        <Badge text="Nachhaltigkeit" />
+        <Badge text="Tradition" />
+      </div>
+
+      <div class="h-[120px]"></div>
+    </div>
+  </section>
+  <div class="h-[100px]"></div>
+  <section class="container mx-auto px-4">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-6 order-1 md:order-0">
+        <h2 class="mb-8">Mehr als nur ein Angelverein</h2>
+        <p>
+          Unser Verein wurde 1974 von einer kleinen Gruppe leidenschaftlicher
+          Angler gegründet. Was als bescheidener Zusammenschluss begann, ist
+          heute eine lebendige Gemeinschaft von über 250 Mitgliedern. Wir
+          pflegen unsere Gewässer mit großer Sorgfalt, fördern den Nachwuchs
+          durch regelmäßige Workshops und setzen uns aktiv für den Naturschutz
+          ein. Bei uns steht das gemeinsame Erleben im Vordergrund – ob bei
+          geselligen Vereinsabenden, spannenden Wettbewerben oder entspannten
+          Angelausflügen. Unser Ziel ist es, die Freude am Angeln mit
+          Verantwortung für die Natur zu verbinden und das Wissen an die nächste
+          Generation weiterzugeben.
+        </p>
+      </div>
+      <div class="col-span-12 md:col-span-6 order-0 md:order-1">
+        <Image
+          src={vereinGeschichte}
+          alt="Mitglieder des Fischervereins am Wasser"
+          widths={[640, 960, 1280]}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          format="webp"
+          class="w-full h-full max-h-[520px] object-cover rounded-lg shadow-md"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+  <div class="h-[100px]"></div>
+
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-6 xl:col-span-3">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
+          <div class="card-icon">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h3 class="font-bold mb-4 mt-2">
+            <CountUp
+              client:load
+              from={0}
+              to={40}
+              separator=","
+              direction="up"
+              duration={1}
+              className="font-bold count-up-text"
+              startWhen={true}
+            />
+          </h3>
+          <p>Aktive Mitglieder</p>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6 xl:col-span-3">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
+          <div class="card-icon">
+            <i class="fa-solid fa-landmark"></i>
+          </div>
+          <h3 class="font-bold mb-4 mt-2">
+            <CountUp
+              client:load
+              from={0}
+              to={35}
+              separator=","
+              direction="up"
+              duration={1}
+              className="font-bold count-up-text"
+              startWhen={true}
+            />
+          </h3>
+          <p>Jahre Tradition</p>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6 xl:col-span-3">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
+          <div class="card-icon">
+            <i class="fa-solid fa-water"></i>
+          </div>
+
+          <h3 class="font-bold mb-4 mt-2">
+            <CountUp
+              client:load
+              from={0}
+              to={2}
+              separator=","
+              direction="up"
+              duration={1}
+              className="font-bold count-up-text"
+              startWhen={true}
+            />
+          </h3>
+          <p>Gepflegte Gewässer</p>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-6 xl:col-span-3">
+        <div
+          class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
+        >
+          <div class="card-icon">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h3 class="font-bold mb-4 mt-2">
+            <CountUp
+              client:load
+              from={0}
+              to={10}
+              separator=","
+              direction="up"
+              duration={1}
+              className="font-bold count-up-text"
+              startWhen={true}
+            />
+          </h3>
+          <p>Auszeichnungen</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-[100px]"></div>
+
+  <div class="container mx-auto px-4 py-8">
+    <h2 class="text-center mb-4">Unsere Geschichte</h2>
+    <p class="text-center mb-10 text-gray-500">
+      Von der Gründung bis heute – Meilensteine unseres Vereins.
+    </p>
+
+    <ClubTimeline client:load items={timelineItems} />
+  </div>
+
+  <div class="h-[100px]"></div>
+
+  <BecomeMember title="Teil unseres Vereins werden" />
+
+  <div class="h-[80px]"></div>
+</Layout>

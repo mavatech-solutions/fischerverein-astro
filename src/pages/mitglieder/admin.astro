@@ -11,7 +11,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
     <div class="bg-white shadow rounded-xl p-6 mb-10">
       <h2 class="h3 mb-6">Neues Mitglied erstellen</h2>
       <form id="create-user-form" class="grid grid-cols-12 gap-4">
-        <div class="col-span-12 md:col-span-4">
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >Name</label
           >
@@ -22,7 +22,18 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
           />
         </div>
-        <div class="col-span-12 md:col-span-4">
+        <div class="col-span-12 md:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Benutzername</label
+          >
+          <input
+            id="new-username"
+            type="text"
+            placeholder="maxmustermann"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >E-Mail</label
           >
@@ -34,7 +45,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
           />
         </div>
 
-        <div class="col-span-12 md:col-span-4">
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >Passwort</label
           >
@@ -85,6 +96,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
           <thead class="bg-gray-100 text-gray-600">
             <tr>
               <th class="px-4 py-3 rounded-l-lg">Name</th>
+              <th class="px-4 py-3">Benutzername</th>
               <th class="px-4 py-3">E-Mail</th>
               <th class="px-4 py-3">Rolle</th>
               <th class="px-4 py-3">Erstellt am</th>
@@ -122,8 +134,23 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
     };
   }
 
-  async function deleteUser(id: string, name: string) {
-    if (!confirm(`Mitglied "${name}" wirklich löschen?`)) return;
+  let usersCache: any[] = [];
+  let editingUserId: string | null = null;
+
+  function escapeHtml(value: string) {
+    return value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  async function deleteUser(id: string) {
+    const user = usersCache.find((u) => u.id === id);
+    const label = user?.full_name || user?.email || "dieses Mitglied";
+
+    if (!confirm(`Mitglied "${label}" wirklich löschen?`)) return;
 
     const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${id}`, {
       method: 'DELETE',
@@ -147,7 +174,59 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
     loadUsers();
   }
 
+  function startEditUser(id: string) {
+    editingUserId = id;
+    loadUsers();
+  }
+
+  function cancelEditUser() {
+    editingUserId = null;
+    loadUsers();
+  }
+
+  async function saveUser(id: string) {
+    const user = usersCache.find((u) => u.id === id);
+    if (!user) return;
+
+    const nameEl = document.getElementById(`edit-name-${id}`) as HTMLInputElement | null;
+    const usernameEl = document.getElementById(`edit-username-${id}`) as HTMLInputElement | null;
+    const roleEl = document.getElementById(`edit-role-${id}`) as HTMLSelectElement | null;
+
+    const name = nameEl?.value.trim() || "";
+    const username = usernameEl?.value.trim() || "";
+    const role = roleEl?.value || "user";
+
+    if (!username) {
+      alert("Benutzername ist erforderlich");
+      return;
+    }
+
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_or_update_profile`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        target_id: user.id,
+        target_email: user.email,
+        target_name: name,
+        target_username: username,
+        target_role: role,
+      }),
+    });
+
+    if (!rpcRes.ok) {
+      const rpcErrorText = await rpcRes.text();
+      alert(`Profil konnte nicht gespeichert werden: ${rpcErrorText || rpcRes.status}`);
+      return;
+    }
+
+    editingUserId = null;
+    loadUsers();
+  }
+
   (window as any).deleteUser = deleteUser;
+  (window as any).startEditUser = startEditUser;
+  (window as any).cancelEditUser = cancelEditUser;
+  (window as any).saveUser = saveUser;
 
   async function loadUsers() {
     const tbody = document.getElementById("user-table-body");
@@ -160,18 +239,51 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
       });
       data = await res.json();
     } catch(e: any) {
-      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-red-500">Fehler: ${e.message}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-red-500">Fehler: ${e.message}</td></tr>`;
       return;
     }
+
+    usersCache = Array.isArray(data) ? data : [];
 
     if (!Array.isArray(data) || !data.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Keine Mitglieder gefunden.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">Keine Mitglieder gefunden.</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = data.map((user) => `
+    tbody.innerHTML = data.map((user) => {
+      const isEditing = editingUserId === user.id;
+      const safeName = escapeHtml(user.full_name || "");
+      const safeUsername = escapeHtml(user.username || "");
+      const safeEmail = escapeHtml(user.email || "");
+
+      if (isEditing) {
+        return `
+      <tr class="border-t border-gray-100 bg-gray-50/60">
+        <td class="px-4 py-3">
+          <input id="edit-name-${user.id}" type="text" value="${safeName}" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
+        </td>
+        <td class="px-4 py-3">
+          <input id="edit-username-${user.id}" type="text" value="${safeUsername}" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
+        </td>
+        <td class="px-4 py-3">${safeEmail || "—"}</td>
+        <td class="px-4 py-3">
+          <select id="edit-role-${user.id}" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm">
+            <option value="user" ${user.role === "user" ? "selected" : ""}>Mitglied</option>
+            <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+          </select>
+        </td>
+        <td class="px-4 py-3 text-gray-400">${new Date(user.created_at).toLocaleDateString("de-DE")}</td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <button onclick="saveUser('${user.id}')" class="text-[var(--color-primary)] hover:opacity-80 text-sm font-medium mr-3">Speichern</button>
+          <button onclick="cancelEditUser()" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Abbrechen</button>
+        </td>
+      </tr>`;
+      }
+
+      return `
       <tr class="border-t border-gray-100">
         <td class="px-4 py-3">${user.full_name || "—"}</td>
+        <td class="px-4 py-3">${user.username || "—"}</td>
         <td class="px-4 py-3">${user.email || "—"}</td>
         <td class="px-4 py-3">
           <span class="px-2 py-1 rounded-full text-xs font-medium ${user.role === "admin" ? "bg-[#d1e5e3] text-[var(--color-primary)]" : "bg-gray-100 text-gray-600"}">
@@ -179,11 +291,13 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
           </span>
         </td>
         <td class="px-4 py-3 text-gray-400">${new Date(user.created_at).toLocaleDateString("de-DE")}</td>
-        <td class="px-4 py-3">
-          <button onclick="deleteUser('${user.id}', '${user.full_name || user.email}')"
+        <td class="px-4 py-3 whitespace-nowrap">
+          <button onclick="startEditUser('${user.id}')" class="text-[var(--color-primary)] hover:opacity-80 text-sm font-medium mr-3">Bearbeiten</button>
+          <button onclick="deleteUser('${user.id}')"
             class="text-red-500 hover:text-red-700 text-sm font-medium">Löschen</button>
         </td>
-      </tr>`).join("");
+      </tr>`;
+    }).join("");
   }
 
   loadUsers();
@@ -195,12 +309,19 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
     const email = (document.getElementById("new-email") as HTMLInputElement).value;
     const password = (document.getElementById("new-password") as HTMLInputElement).value;
     const name = (document.getElementById("new-name") as HTMLInputElement).value;
+    const username = (document.getElementById("new-username") as HTMLInputElement).value;
     const role = (document.getElementById("new-role") as HTMLSelectElement).value;
     const errorEl = document.getElementById("create-error");
     const successEl = document.getElementById("create-success");
 
     errorEl?.classList.add("hidden");
     successEl?.classList.add("hidden");
+
+    if (!username) {
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = "Benutzername ist erforderlich";
+      return;
+    }
 
     // User erstellen (raw fetch — ändert Admin-Session nicht)
     const signUpRes = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
@@ -226,9 +347,18 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
         target_id: newUserId,
         target_email: email,
         target_name: name,
+        target_username: username,
         target_role: role,
       }),
     });
+
+    if (!rpcRes.ok) {
+      const rpcErrorText = await rpcRes.text();
+      errorEl?.classList.remove("hidden");
+      errorEl!.textContent = `Profil konnte nicht erstellt werden: ${rpcErrorText || rpcRes.status}`;
+      return;
+    }
+
     successEl?.classList.remove("hidden");
     successEl!.textContent = `Mitglied "${name}" wurde erstellt!`;
     (e.target as HTMLFormElement).reset();

@@ -11,15 +11,15 @@ import Layout from "../../layouts/Layout.astro";
         <form id="login-form" class="flex flex-col gap-4">
           <div>
             <label
-              for="email"
+              for="login-field"
               class="block text-sm font-medium text-gray-700 mb-1"
             >
-              E-Mail Adresse
+              E-Mail oder Benutzername
             </label>
             <input
-              type="email"
-              id="email"
-              placeholder="deine@email.de"
+              type="text"
+              id="login-field"
+              placeholder="deine@email.de oder benutzername"
               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
             />
           </div>
@@ -61,8 +61,9 @@ import Layout from "../../layouts/Layout.astro";
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const email = (document.getElementById("email") as HTMLInputElement)
-        .value;
+      const loginField = (document.getElementById("login-field") as HTMLInputElement)
+        .value
+        .trim();
       const password = (document.getElementById("password") as HTMLInputElement)
         .value;
       const btn = form.querySelector("button[type=submit]") as HTMLButtonElement;
@@ -70,6 +71,35 @@ import Layout from "../../layouts/Layout.astro";
       errorMsg?.classList.add("hidden");
       btn.textContent = "Wird geladen...";
       btn.disabled = true;
+
+      if (!loginField) {
+        errorMsg!.textContent = "Bitte E-Mail oder Benutzername eingeben";
+        errorMsg?.classList.remove("hidden");
+        btn.textContent = "Anmelden";
+        btn.disabled = false;
+        return;
+      }
+
+      // Bestimme, ob es eine E-Mail oder ein Benutzer ist
+      let email = loginField;
+      
+      if (!loginField.includes("@")) {
+        // Username-Aufloesung ueber SECURITY DEFINER RPC, da RLS vor dem Login greift.
+        const { data: resolvedEmail, error: resolveError } = await supabase.rpc(
+          "get_email_by_username",
+          { p_username: loginField }
+        );
+
+        if (resolveError || !resolvedEmail) {
+          errorMsg!.textContent = "Benutzer nicht gefunden";
+          errorMsg?.classList.remove("hidden");
+          btn.textContent = "Anmelden";
+          btn.disabled = false;
+          return;
+        }
+        
+        email = resolvedEmail;
+      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
