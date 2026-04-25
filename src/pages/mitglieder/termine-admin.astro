@@ -1,0 +1,404 @@
+---
+import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
+---
+
+<ModeratorLayout title="Termine verwalten">
+  <div class="container mx-auto px-4 py-24">
+    <p class="mb-2 text-3xl font-semibold">Termine verwalten</p>
+    <p class="text-gray-500 mb-10">Termine hinzufügen, bearbeiten und löschen</p>
+
+    <!-- Termin hinzufügen -->
+    <div class="bg-white shadow rounded-xl p-6 mb-10">
+      <h2 class="h3 mb-6">Termin hinzufügen</h2>
+      <form id="create-termin-form" class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 md:col-span-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+          <input id="t-titel" type="text" placeholder="Jahreshauptversammlung"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+          <input id="t-datum" type="date"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Uhrzeit (optional)</label>
+          <input id="t-uhrzeit" type="time"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Ort (optional)</label>
+          <input id="t-ort" type="text" placeholder="Vereinsheim"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div class="col-span-12">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Beschreibung (optional)</label>
+          <textarea id="t-beschreibung" rows="2" placeholder="Weitere Informationen..."
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"></textarea>
+        </div>
+        <div class="col-span-12">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Badges (optional)</label>
+          <div id="create-termin-preview" class="flex flex-wrap gap-1.5 mb-2 min-h-[28px]"></div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="create-termin-tag-text" type="text" placeholder="z.B. Pflichttermin"
+              class="w-full sm:flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+            <div class="flex gap-2">
+              <select id="create-termin-tag-color"
+                class="flex-1 sm:flex-none border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+                <option value="primary">Grün</option>
+                <option value="dark">Dunkel</option>
+                <option value="gray">Grau</option>
+                <option value="blue">Blau</option>
+                <option value="orange">Orange</option>
+                <option value="red">Rot</option>
+              </select>
+              <button type="button" onclick="addTag('create-termin')"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition whitespace-nowrap">+ Badge</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-12 flex items-center gap-4">
+          <button type="submit"
+            class="bg-[var(--color-primary)] text-white px-6 py-2 rounded-md font-semibold hover:opacity-90 transition">
+            Termin erstellen
+          </button>
+          <p id="termin-error" class="text-red-500 text-sm hidden"></p>
+          <p id="termin-success" class="text-green-600 text-sm hidden"></p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Alle Termine -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h2 class="h3 mb-6">Alle Termine</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-gray-100 text-gray-600">
+            <tr>
+              <th class="px-4 py-3 rounded-l-lg">Datum</th>
+              <th class="px-4 py-3">Titel</th>
+              <th class="px-4 py-3">Uhrzeit</th>
+              <th class="px-4 py-3">Ort</th>
+              <th class="px-4 py-3 rounded-r-lg">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="termin-table-body">
+            <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Lädt...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</ModeratorLayout>
+
+<script>
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  function showToast(msg: string, type: 'success' | 'error' = 'success') {
+    const isError = type === 'error';
+    const div = document.createElement('div');
+    div.style.cssText = [
+      'position:fixed;bottom:24px;right:24px;z-index:9999',
+      'padding:13px 20px;border-radius:12px',
+      `background:${isError ? '#dc2626' : '#16a34a'};color:#fff`,
+      'font-size:14px;font-weight:500;font-family:inherit',
+      'display:flex;align-items:center;gap:10px',
+      'box-shadow:0 4px 20px rgba(0,0,0,.18)',
+      'transform:translateY(10px);opacity:0',
+      'transition:opacity .25s ease,transform .25s ease',
+      'max-width:360px;line-height:1.4',
+    ].join(';');
+    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">${
+      isError
+        ? '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>'
+        : '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/>'
+    }</svg><span>${msg}</span>`;
+    document.body.appendChild(div);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      div.style.opacity = '1';
+      div.style.transform = 'translateY(0)';
+    }));
+    setTimeout(() => {
+      div.style.opacity = '0';
+      div.style.transform = 'translateY(10px)';
+      setTimeout(() => div.remove(), 300);
+    }, 4500);
+  }
+
+  function getJwt() {
+    const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+    const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+    return stored?.access_token || SUPABASE_KEY;
+  }
+
+  function handleUnauthorized(res: Response) {
+    if (res.status === 401) {
+      window.location.replace('/mitglieder/login');
+      return true;
+    }
+    return false;
+  }
+
+  function headers() {
+    return {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${getJwt()}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  function escapeHtml(value: string) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function tagClass(color: string) {
+    const map: Record<string, string> = {
+      primary: 'bg-[#d1e5e3] text-[var(--color-secondary)]',
+      dark: 'bg-gray-200 text-gray-800',
+      gray: 'bg-gray-100 text-gray-500',
+      blue: 'bg-blue-100 text-blue-700',
+      orange: 'bg-orange-100 text-orange-700',
+      red: 'bg-red-100 text-red-600',
+    };
+    return map[color] || map['primary'];
+  }
+
+  function tagsDisplayHtml(tags: any[]) {
+    if (!tags?.length) return '';
+    return `<div class="flex flex-wrap gap-1 mt-1">${tags.map(t =>
+      `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${tagClass(t.color)}">${escapeHtml(t.text)}</span>`
+    ).join('')}</div>`;
+  }
+
+  const tagsStore = new Map<string, any[]>();
+
+  function addTag(prefix: string) {
+    const textEl = document.getElementById(`${prefix}-tag-text`) as HTMLInputElement;
+    const colorEl = document.getElementById(`${prefix}-tag-color`) as HTMLSelectElement;
+    const text = textEl?.value.trim();
+    if (!text) return;
+    const color = colorEl?.value || 'primary';
+    if (!tagsStore.has(prefix)) tagsStore.set(prefix, []);
+    tagsStore.get(prefix)!.push({ text, color });
+    textEl.value = '';
+    refreshTagEditor(prefix);
+  }
+
+  function removeTag(prefix: string, index: number) {
+    const tags = tagsStore.get(prefix);
+    if (!tags) return;
+    tags.splice(index, 1);
+    refreshTagEditor(prefix);
+  }
+
+  function refreshTagEditor(prefix: string) {
+    const tags = tagsStore.get(prefix) || [];
+    const preview = document.getElementById(`${prefix}-preview`);
+    if (!preview) return;
+    preview.innerHTML = tags.map((t, i) =>
+      `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${tagClass(t.color)}">
+        ${escapeHtml(t.text)}
+        <button type="button" onclick="removeTag('${prefix}',${i})" class="ml-0.5 hover:opacity-70 leading-none">×</button>
+      </span>`
+    ).join('');
+  }
+
+  let termineCache: any[] = [];
+  let editingTerminId: string | null = null;
+
+  async function loadTermine() {
+    const tbody = document.getElementById('termin-table-body');
+    if (!tbody) return;
+
+    let data: any[];
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/termine?select=*&order=datum.asc`,
+        { headers: headers() }
+      );
+      if (handleUnauthorized(res)) return;
+      data = await res.json();
+    } catch (e: any) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-red-500">Fehler: ${e.message}</td></tr>`;
+      return;
+    }
+
+    termineCache = Array.isArray(data) ? data : [];
+
+    if (!termineCache.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Keine Termine gefunden.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = termineCache.map((t) => {
+      const isEditing = editingTerminId === t.id;
+      const safeTitel = escapeHtml(t.titel || '');
+      const safeOrt   = escapeHtml(t.ort || '');
+      const uhrzeit   = t.uhrzeit ? t.uhrzeit.slice(0, 5) : '';
+      const datum     = t.datum ? new Date(t.datum + 'T00:00:00').toLocaleDateString('de-DE') : '—';
+
+      if (isEditing) {
+        return `
+        <tr class="border-t border-gray-100 bg-gray-50/60">
+          <td class="px-4 py-3">
+            <input id="et-datum-${t.id}" type="date" value="${t.datum}"
+              class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
+          </td>
+          <td class="px-4 py-3">
+            <input id="et-titel-${t.id}" type="text" value="${safeTitel}"
+              class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm mb-2" />
+            <div id="et-${t.id}-preview" class="flex flex-wrap gap-1 mb-1 min-h-[20px]"></div>
+            <div class="flex flex-wrap gap-1">
+              <input id="et-${t.id}-tag-text" type="text" placeholder="Badge Text"
+                class="w-full border border-gray-300 rounded-md px-2 py-1 text-xs min-w-0" />
+              <select id="et-${t.id}-tag-color"
+                class="flex-1 border border-gray-300 rounded-md px-1 py-1 text-xs min-w-0">
+                <option value="primary">Grün</option>
+                <option value="dark">Dunkel</option>
+                <option value="gray">Grau</option>
+                <option value="blue">Blau</option>
+                <option value="orange">Orange</option>
+                <option value="red">Rot</option>
+              </select>
+              <button type="button" onclick="addTag('et-${t.id}')"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1 rounded text-xs whitespace-nowrap">+ Badge</button>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <input id="et-uhrzeit-${t.id}" type="time" value="${uhrzeit}"
+              class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
+          </td>
+          <td class="px-4 py-3">
+            <input id="et-ort-${t.id}" type="text" value="${safeOrt}"
+              class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <button onclick="saveTermin('${t.id}')" class="text-[var(--color-primary)] hover:opacity-80 text-sm font-medium mr-3">Speichern</button>
+            <button onclick="cancelEditTermin()" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Abbrechen</button>
+          </td>
+        </tr>`;
+      }
+
+      return `
+      <tr class="border-t border-gray-100">
+        <td class="px-4 py-3">${datum}</td>
+        <td class="px-4 py-3">
+          <span class="font-medium">${safeTitel}</span>
+          ${tagsDisplayHtml(t.tags || [])}
+        </td>
+        <td class="px-4 py-3 text-gray-500">${uhrzeit ? uhrzeit + ' Uhr' : '—'}</td>
+        <td class="px-4 py-3 text-gray-500">${safeOrt || '—'}</td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <button onclick="startEditTermin('${t.id}')" class="text-[var(--color-primary)] hover:opacity-80 text-sm font-medium mr-3">Bearbeiten</button>
+          <button onclick="deleteTermin('${t.id}')" class="text-red-500 hover:text-red-700 text-sm font-medium">Löschen</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    if (editingTerminId) refreshTagEditor(`et-${editingTerminId}`);
+  }
+
+  async function deleteTermin(id: string) {
+    const t = termineCache.find(x => x.id === id);
+    if (!confirm(`Termin "${t?.titel || id}" wirklich löschen?`)) return;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/termine?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    });
+    if (!res.ok) { showToast('Fehler beim Löschen: ' + res.status, 'error'); return; }
+    loadTermine();
+    showToast(`Termin "${t?.titel || ''}" wurde gelöscht`);
+  }
+
+  function startEditTermin(id: string) {
+    const t = termineCache.find(x => x.id === id);
+    tagsStore.set(`et-${id}`, JSON.parse(JSON.stringify(t?.tags || [])));
+    editingTerminId = id;
+    loadTermine();
+  }
+
+  function cancelEditTermin() {
+    if (editingTerminId) tagsStore.delete(`et-${editingTerminId}`);
+    editingTerminId = null;
+    loadTermine();
+  }
+
+  async function saveTermin(id: string) {
+    const titel   = (document.getElementById(`et-titel-${id}`) as HTMLInputElement)?.value.trim();
+    const datum   = (document.getElementById(`et-datum-${id}`) as HTMLInputElement)?.value;
+    const uhrzeit = (document.getElementById(`et-uhrzeit-${id}`) as HTMLInputElement)?.value || null;
+    const ort     = (document.getElementById(`et-ort-${id}`) as HTMLInputElement)?.value.trim() || null;
+
+    if (!titel || !datum) { alert('Titel und Datum sind erforderlich.'); return; }
+
+    const tags = tagsStore.get(`et-${id}`) || [];
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/termine?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { ...headers(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ titel, datum, uhrzeit, ort, tags }),
+    });
+    if (!res.ok) { showToast('Fehler beim Speichern: ' + res.status, 'error'); return; }
+
+    tagsStore.delete(`et-${id}`);
+    editingTerminId = null;
+    loadTermine();
+    showToast('Termin wurde gespeichert');
+  }
+
+  (window as any).deleteTermin    = deleteTermin;
+  (window as any).startEditTermin = startEditTermin;
+  (window as any).cancelEditTermin = cancelEditTermin;
+  (window as any).saveTermin      = saveTermin;
+  (window as any).addTag          = addTag;
+  (window as any).removeTag       = removeTag;
+
+  loadTermine();
+
+  document.getElementById('create-termin-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const titel        = (document.getElementById('t-titel') as HTMLInputElement).value.trim();
+    const datum        = (document.getElementById('t-datum') as HTMLInputElement).value;
+    const uhrzeit      = (document.getElementById('t-uhrzeit') as HTMLInputElement).value || null;
+    const ort          = (document.getElementById('t-ort') as HTMLInputElement).value.trim() || null;
+    const beschreibung = (document.getElementById('t-beschreibung') as HTMLTextAreaElement).value.trim() || null;
+
+    const errEl = document.getElementById('termin-error');
+    const okEl  = document.getElementById('termin-success');
+    errEl?.classList.add('hidden');
+    okEl?.classList.add('hidden');
+
+    if (!titel || !datum) {
+      errEl!.textContent = 'Titel und Datum sind erforderlich.';
+      errEl?.classList.remove('hidden');
+      return;
+    }
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/termine`, {
+      method: 'POST',
+      headers: { ...headers(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ titel, datum, uhrzeit, ort, beschreibung, tags: tagsStore.get('create-termin') || [] }),
+    });
+
+    if (!res.ok) {
+      errEl!.textContent = 'Fehler beim Erstellen: ' + res.status;
+      errEl?.classList.remove('hidden');
+      return;
+    }
+
+    okEl!.textContent = `Termin "${titel}" wurde erstellt!`;
+    okEl?.classList.remove('hidden');
+    (e.target as HTMLFormElement).reset();
+    tagsStore.set('create-termin', []);
+    refreshTagEditor('create-termin');
+    loadTermine();
+    showToast(`Termin "${titel}" wurde erstellt`);
+  });
+</script>

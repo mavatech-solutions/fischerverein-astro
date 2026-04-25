@@ -124,11 +124,13 @@ import Layout from "../../layouts/Layout.astro";
 
       document.cookie = "sb-auth=1; path=/; SameSite=Strict; max-age=604800";
 
-      if (profile?.role === "admin") {
+      if (profile?.role === "admin" || profile?.role === "moderator") {
         document.cookie =
-          "sb-role=admin; path=/; SameSite=Strict; max-age=604800";
+          `sb-role=${profile.role}; path=/; SameSite=Strict; max-age=604800`;
       }
 
+      const firstName = profile?.full_name?.split(' ')[0] || '';
+      sessionStorage.setItem('justLoggedIn', firstName || '1');
       window.location.href = "/mitglieder/dashboard";
     });
   </script>

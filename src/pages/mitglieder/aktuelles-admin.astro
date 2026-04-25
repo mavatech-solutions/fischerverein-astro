@@ -1,0 +1,544 @@
+---
+import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
+---
+
+<ModeratorLayout title="Aktuelles verwalten">
+  <div class="container mx-auto px-4 py-16 sm:py-24 max-w-4xl overflow-x-hidden">
+    <p class="mb-2 text-3xl font-semibold">Aktuelles verwalten</p>
+    <p class="text-gray-500 mb-10">Beiträge erstellen, bearbeiten und löschen</p>
+
+    <!-- Neuer Beitrag -->
+    <div class="bg-white shadow rounded-xl p-6 mb-8">
+      <h2 class="text-lg font-semibold text-[var(--color-dark)] mb-6">Neuer Beitrag</h2>
+      <form id="create-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
+          <input id="c-titel" type="text" placeholder="Titel des Beitrags"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Inhalt *</label>
+          <textarea id="c-inhalt" rows="5" placeholder="Inhalt des Beitrags..."
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] resize-y"></textarea>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+          <input id="c-pinned" type="checkbox" class="w-4 h-4 accent-[var(--color-primary)]" />
+          Beitrag anpinnen <span class="text-gray-400">(erscheint immer oben im Feed)</span>
+        </label>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Anhänge <span class="font-normal text-gray-400">(optional, mehrere Dateien möglich)</span>
+          </label>
+          <input id="c-files" type="file" multiple
+            class="block w-full max-w-full text-sm text-gray-500
+              file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+              file:text-xs file:font-semibold file:bg-[#d1e5e3] file:text-[var(--color-secondary)]
+              hover:file:bg-[var(--color-primary)] hover:file:text-white file:transition-colors cursor-pointer" />
+        </div>
+        <div class="flex items-center gap-4 pt-1">
+          <button type="submit"
+            id="c-submit"
+            class="bg-[var(--color-primary)] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-60">
+            Beitrag erstellen
+          </button>
+          <p id="c-error"   class="text-red-500 text-sm hidden"></p>
+          <p id="c-success" class="text-green-600 text-sm hidden"></p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Alle Beiträge -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h2 class="text-lg font-semibold text-[var(--color-dark)] mb-6">Alle Beiträge</h2>
+      <div id="posts-list">
+        <p class="text-sm text-gray-400">Lädt...</p>
+      </div>
+    </div>
+  </div>
+</ModeratorLayout>
+
+<script>
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  function showToast(msg: string, type: 'success' | 'error' = 'success') {
+    const isError = type === 'error';
+    const div = document.createElement('div');
+    div.style.cssText = [
+      'position:fixed;bottom:24px;right:24px;z-index:9999',
+      'padding:13px 20px;border-radius:12px',
+      `background:${isError ? '#dc2626' : '#16a34a'};color:#fff`,
+      'font-size:14px;font-weight:500;font-family:inherit',
+      'display:flex;align-items:center;gap:10px',
+      'box-shadow:0 4px 20px rgba(0,0,0,.18)',
+      'transform:translateY(10px);opacity:0',
+      'transition:opacity .25s ease,transform .25s ease',
+      'max-width:360px;line-height:1.4',
+    ].join(';');
+    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">${
+      isError
+        ? '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>'
+        : '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/>'
+    }</svg><span>${msg}</span>`;
+    document.body.appendChild(div);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      div.style.opacity = '1';
+      div.style.transform = 'translateY(0)';
+    }));
+    setTimeout(() => {
+      div.style.opacity = '0';
+      div.style.transform = 'translateY(10px)';
+      setTimeout(() => div.remove(), 300);
+    }, 4500);
+  }
+
+  async function sendEmailNotification(payload: Record<string, unknown>) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification-email`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${getJwt()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.status);
+      showToast(`E-Mail wurde an ${data.sent} Mitglieder gesendet`);
+    } catch (err: any) {
+      showToast('E-Mail konnte nicht gesendet werden: ' + err.message, 'error');
+    }
+  }
+
+  function getJwt() {
+    const key = Object.keys(localStorage).find(k => k.includes('auth-token'));
+    const stored = key ? JSON.parse(localStorage.getItem(key) || '{}') : {};
+    return stored?.access_token || SUPABASE_KEY;
+  }
+
+  function getUserId() {
+    const jwt = getJwt();
+    if (!jwt || jwt === SUPABASE_KEY) return null;
+    try { return JSON.parse(atob(jwt.split('.')[1]))?.sub || null; } catch { return null; }
+  }
+
+  function headers(extra: Record<string, string> = {}) {
+    return { apikey: SUPABASE_KEY, Authorization: `Bearer ${getJwt()}`, 'Content-Type': 'application/json', ...extra };
+  }
+
+  function esc(s: string) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
+  }
+
+  function handleUnauthorized(res: Response) {
+    if (res.status === 401) { window.location.replace('/mitglieder/login'); return true; }
+    return false;
+  }
+
+  function fileIcon(mime: string | null) {
+    if (!mime) return 'fa-file';
+    if (mime.includes('pdf')) return 'fa-file-pdf';
+    if (mime.includes('image')) return 'fa-file-image';
+    if (mime.includes('word') || mime.includes('document')) return 'fa-file-word';
+    if (mime.includes('sheet') || mime.includes('excel')) return 'fa-file-excel';
+    if (mime.includes('powerpoint') || mime.includes('presentation')) return 'fa-file-powerpoint';
+    if (mime.includes('zip') || mime.includes('rar') || mime.includes('archive')) return 'fa-file-zipper';
+    return 'fa-file';
+  }
+
+  function formatSize(bytes: number | null) {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  }
+
+  async function getAutorName() {
+    const uid = getUserId();
+    if (!uid) return 'Unbekannt';
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${uid}&select=full_name`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${getJwt()}` } }
+      );
+      const data = await res.json();
+      return data?.[0]?.full_name || 'Unbekannt';
+    } catch { return 'Unbekannt'; }
+  }
+
+  async function uploadFile(postId: string, file: File) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const pfad = `${postId}/${Date.now()}-${safeName}`;
+
+    const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/aktuelles/${pfad}`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${getJwt()}`,
+        'Content-Type': file.type || 'application/octet-stream',
+      },
+      body: file,
+    });
+
+    if (!uploadRes.ok) {
+      console.error('Storage Upload fehlgeschlagen:', await uploadRes.text());
+      return;
+    }
+
+    await fetch(`${SUPABASE_URL}/rest/v1/aktuelles_anhaenge`, {
+      method: 'POST',
+      headers: { ...headers(), Prefer: 'return=minimal' },
+      body: JSON.stringify({
+        post_id: postId,
+        dateiname: file.name,
+        pfad,
+        groesse: file.size,
+        mime_typ: file.type || null,
+      }),
+    });
+  }
+
+  async function deleteFromStorage(pfad: string) {
+    await fetch(`${SUPABASE_URL}/storage/v1/object/delete/aktuelles`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${getJwt()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prefixes: [pfad] }),
+    });
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let postsCache: any[] = [];
+  let anhaengeCache = new Map<string, any[]>();
+  let editingPostId: string | null = null;
+  let pendingRemoveIds = new Set<string>();
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function renderPosts() {
+    const el = document.getElementById('posts-list');
+    if (!el) return;
+
+    if (!postsCache.length) {
+      el.innerHTML = '<p class="text-sm text-gray-400">Noch keine Beiträge vorhanden.</p>';
+      return;
+    }
+
+    el.innerHTML = postsCache.map(p =>
+      editingPostId === p.id
+        ? renderEditCard(p, anhaengeCache.get(p.id) || [])
+        : renderViewRow(p, anhaengeCache.get(p.id) || [])
+    ).join('');
+  }
+
+  function renderViewRow(p: any, anhaenge: any[]) {
+    const date = new Date(p.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const anCount = anhaenge.length;
+    return `
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-gray-100 last:border-0">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-0.5">
+            ${p.pinned ? '<i class="fa-solid fa-thumbtack text-[var(--color-primary)] text-xs shrink-0"></i>' : ''}
+            <p class="font-semibold text-[var(--color-dark)] truncate">${esc(p.titel)}</p>
+          </div>
+          <p class="text-xs text-gray-400">
+            ${esc(p.autor_name)} &middot; ${date}
+            ${anCount ? ` &middot; <i class="fa-solid fa-paperclip"></i> ${anCount} Anlage${anCount !== 1 ? 'n' : ''}` : ''}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button onclick="togglePin('${p.id}', ${!p.pinned})"
+            title="${p.pinned ? 'Nicht mehr anpinnen' : 'Anpinnen'}"
+            class="px-3 py-1.5 rounded-lg border text-sm transition
+              ${p.pinned
+                ? 'border-[var(--color-primary)] text-[var(--color-primary)] bg-[#d1e5e3]'
+                : 'border-gray-200 text-gray-500 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'}">
+            <i class="fa-solid fa-thumbtack text-xs"></i>
+          </button>
+          <button onclick="startEdit('${p.id}')"
+            class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition">
+            Bearbeiten
+          </button>
+          <button onclick="deletePost('${p.id}')"
+            class="px-3 py-1.5 rounded-lg border border-red-200 text-sm text-red-500 hover:bg-red-50 transition">
+            Löschen
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function renderEditCard(p: any, anhaenge: any[]) {
+    const visible = anhaenge.filter(a => !pendingRemoveIds.has(a.id));
+
+    const anhaengeHtml = visible.length
+      ? `<div>
+          <p class="text-xs font-medium text-gray-500 mb-2">Vorhandene Anhänge:</p>
+          <div class="flex flex-wrap gap-2">
+            ${visible.map(a => `
+              <span class="inline-flex items-center gap-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg px-3 py-1.5">
+                <i class="fa-solid ${fileIcon(a.mime_typ)} text-gray-400"></i>
+                <span class="max-w-[140px] truncate">${esc(a.dateiname)}</span>
+                ${formatSize(a.groesse) ? `<span class="text-gray-400">${formatSize(a.groesse)}</span>` : ''}
+                <button type="button" onclick="markRemove('${a.id}')"
+                  class="ml-0.5 text-red-400 hover:text-red-600 font-bold leading-none text-sm">×</button>
+              </span>`).join('')}
+          </div>
+        </div>`
+      : (anhaenge.length ? '<p class="text-xs text-gray-400 italic">Alle Anhänge werden beim Speichern gelöscht.</p>' : '');
+
+    return `
+      <div class="py-4 border-b border-gray-100 last:border-0 bg-gray-50/60 rounded-xl px-3 sm:px-4 my-2 w-full min-w-0">
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Titel</label>
+            <input id="e-titel-${p.id}" type="text" value="${esc(p.titel)}"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Inhalt</label>
+            <textarea id="e-inhalt-${p.id}" rows="5"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] resize-y">${esc(p.inhalt)}</textarea>
+          </div>
+          <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+            <input id="e-pinned-${p.id}" type="checkbox" ${p.pinned ? 'checked' : ''} class="w-4 h-4 accent-[var(--color-primary)]" />
+            Angepinnt
+          </label>
+          ${anhaengeHtml}
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Neue Anhänge hinzufügen</label>
+            <input id="e-files-${p.id}" type="file" multiple
+              class="block w-full text-sm text-gray-500
+                file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                file:text-xs file:font-semibold file:bg-[#d1e5e3] file:text-[var(--color-secondary)]
+                hover:file:bg-[var(--color-primary)] hover:file:text-white file:transition-colors cursor-pointer" />
+          </div>
+          <div class="flex items-center gap-3 pt-1">
+            <button onclick="saveEdit('${p.id}')"
+              class="bg-[var(--color-primary)] text-white px-5 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition">
+              Speichern
+            </button>
+            <button onclick="cancelEdit()"
+              class="text-gray-600 hover:text-gray-900 text-sm font-medium transition">
+              Abbrechen
+            </button>
+            <p id="e-status-${p.id}" class="text-sm hidden"></p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Load ───────────────────────────────────────────────────────────────────
+  async function loadPosts() {
+    const el = document.getElementById('posts-list');
+    if (!el) return;
+
+    try {
+      const h = { apikey: SUPABASE_KEY, Authorization: `Bearer ${getJwt()}` };
+      const [postsRes, anhaengeRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/aktuelles?select=*&order=pinned.desc,created_at.desc`, { headers: h }),
+        fetch(`${SUPABASE_URL}/rest/v1/aktuelles_anhaenge?select=*`, { headers: h }),
+      ]);
+
+      if (!postsRes.ok) {
+        if (handleUnauthorized(postsRes)) return;
+        el.innerHTML = `<p class="text-red-500 text-sm">Fehler ${postsRes.status}: ${await postsRes.text()}</p>`;
+        return;
+      }
+
+      postsCache = (await postsRes.json()) || [];
+      const anhaenge = anhaengeRes.ok ? (await anhaengeRes.json()) || [] : [];
+
+      anhaengeCache = new Map();
+      for (const a of anhaenge) {
+        if (!anhaengeCache.has(a.post_id)) anhaengeCache.set(a.post_id, []);
+        anhaengeCache.get(a.post_id)!.push(a);
+      }
+
+      renderPosts();
+    } catch (e: any) {
+      const el2 = document.getElementById('posts-list');
+      if (el2) el2.innerHTML = `<p class="text-red-500 text-sm">Fehler: ${e.message}</p>`;
+    }
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+  async function togglePin(id: string, newPinned: boolean) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/aktuelles?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { ...headers(), Prefer: 'return=minimal' },
+      body: JSON.stringify({ pinned: newPinned }),
+    });
+    if (!res.ok) { showToast('Fehler beim Anpinnen: ' + res.status, 'error'); return; }
+    loadPosts();
+    showToast(newPinned ? 'Beitrag wurde angepinnt' : 'Beitrag wurde losgelöst');
+  }
+
+  async function deletePost(id: string) {
+    const p = postsCache.find(x => x.id === id);
+    if (!confirm(`Beitrag "${p?.titel || id}" wirklich löschen?\nAlle Anhänge werden ebenfalls gelöscht.`)) return;
+
+    // Storage-Dateien löschen
+    const anhaenge = anhaengeCache.get(id) || [];
+    for (const a of anhaenge) {
+      await deleteFromStorage(a.pfad);
+    }
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/aktuelles?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: headers(),
+    });
+    if (!res.ok) { showToast('Fehler beim Löschen: ' + res.status, 'error'); return; }
+    if (editingPostId === id) { editingPostId = null; pendingRemoveIds.clear(); }
+    loadPosts();
+    showToast(`Beitrag wurde gelöscht`);
+  }
+
+  function startEdit(id: string) {
+    editingPostId = id;
+    pendingRemoveIds = new Set();
+    renderPosts();
+    document.getElementById(`e-titel-${id}`)?.focus();
+  }
+
+  function cancelEdit() {
+    editingPostId = null;
+    pendingRemoveIds.clear();
+    renderPosts();
+  }
+
+  function markRemove(anhangId: string) {
+    pendingRemoveIds.add(anhangId);
+    renderPosts();
+  }
+
+  async function saveEdit(postId: string) {
+    const titel  = (document.getElementById(`e-titel-${postId}`)  as HTMLInputElement)?.value.trim();
+    const inhalt = (document.getElementById(`e-inhalt-${postId}`) as HTMLTextAreaElement)?.value.trim();
+    const pinned = (document.getElementById(`e-pinned-${postId}`) as HTMLInputElement)?.checked;
+    const files  = (document.getElementById(`e-files-${postId}`)  as HTMLInputElement)?.files;
+
+    const statusEl = document.getElementById(`e-status-${postId}`);
+    const setStatus = (msg: string, color: string) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = `text-sm ${color}`;
+      statusEl.classList.remove('hidden');
+    };
+
+    if (!titel || !inhalt) {
+      setStatus('Titel und Inhalt sind erforderlich.', 'text-red-500');
+      return;
+    }
+
+    setStatus('Speichert…', 'text-gray-500');
+
+    try {
+      // 1. Markierte Anhänge löschen
+      const anhaenge = anhaengeCache.get(postId) || [];
+      for (const aId of pendingRemoveIds) {
+        const a = anhaenge.find(x => x.id === aId);
+        if (!a) continue;
+        await deleteFromStorage(a.pfad);
+        await fetch(`${SUPABASE_URL}/rest/v1/aktuelles_anhaenge?id=eq.${aId}`, {
+          method: 'DELETE', headers: headers(),
+        });
+      }
+
+      // 2. Post aktualisieren
+      const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/aktuelles?id=eq.${postId}`, {
+        method: 'PATCH',
+        headers: { ...headers(), Prefer: 'return=minimal' },
+        body: JSON.stringify({ titel, inhalt, pinned }),
+      });
+      if (!patchRes.ok) throw new Error('PATCH ' + patchRes.status);
+
+      // 3. Neue Dateien hochladen
+      if (files?.length) {
+        for (const file of Array.from(files)) {
+          await uploadFile(postId, file);
+        }
+      }
+
+      pendingRemoveIds.clear();
+      editingPostId = null;
+      loadPosts();
+      showToast('Beitrag wurde gespeichert');
+    } catch (e: any) {
+      setStatus('Fehler: ' + e.message, 'text-red-500');
+    }
+  }
+
+  // ── Create Form ────────────────────────────────────────────────────────────
+  document.getElementById('create-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const titel  = (document.getElementById('c-titel')  as HTMLInputElement).value.trim();
+    const inhalt = (document.getElementById('c-inhalt') as HTMLTextAreaElement).value.trim();
+    const pinned = (document.getElementById('c-pinned') as HTMLInputElement).checked;
+    const files  = (document.getElementById('c-files')  as HTMLInputElement).files;
+
+    const errEl = document.getElementById('c-error');
+    const okEl  = document.getElementById('c-success');
+    const btn   = document.getElementById('c-submit') as HTMLButtonElement;
+    errEl?.classList.add('hidden');
+    okEl?.classList.add('hidden');
+
+    if (!titel || !inhalt) {
+      errEl!.textContent = 'Titel und Inhalt sind erforderlich.';
+      errEl?.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Erstellt…';
+
+    try {
+      const autorName = await getAutorName();
+      const autorId   = getUserId();
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/aktuelles`, {
+        method: 'POST',
+        headers: { ...headers(), Prefer: 'return=representation' },
+        body: JSON.stringify({ titel, inhalt, pinned, autor_id: autorId, autor_name: autorName }),
+      });
+
+      if (!res.ok) {
+        if (handleUnauthorized(res)) return;
+        throw new Error('HTTP ' + res.status + ': ' + await res.text());
+      }
+
+      const [post] = await res.json();
+
+      if (files?.length) {
+        for (const file of Array.from(files)) {
+          await uploadFile(post.id, file);
+        }
+      }
+
+      okEl!.textContent = `Beitrag "${titel}" wurde erstellt!`;
+      okEl?.classList.remove('hidden');
+      (e.target as HTMLFormElement).reset();
+      loadPosts();
+      sendEmailNotification({ type: 'beitrag', titel, inhalt, autor_name: autorName });
+    } catch (err: any) {
+      errEl!.textContent = 'Fehler: ' + err.message;
+      errEl?.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Beitrag erstellen';
+    }
+  });
+
+  // ── Expose globals ─────────────────────────────────────────────────────────
+  (window as any).togglePin  = togglePin;
+  (window as any).deletePost = deletePost;
+  (window as any).startEdit  = startEdit;
+  (window as any).cancelEdit = cancelEdit;
+  (window as any).markRemove = markRemove;
+  (window as any).saveEdit   = saveEdit;
+
+  loadPosts();
+</script>

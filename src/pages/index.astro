@@ -4,6 +4,9 @@ import Badge from "../components/Badge.astro";
 import CountUp from "../components/CountUp.jsx";
 import MuiButton from "../components/MuiButton.jsx";
 import BecomeMember from "../components/BecomeMember.astro";
+import { Image } from "astro:assets";
+import see1Img from "../assets/images/see1.jpeg";
+import see2Img from "../assets/images/see2.jpeg";
 ---
 
 <Layout title="Startseite">
@@ -118,7 +121,160 @@ import BecomeMember from "../components/BecomeMember.astro";
 
   <div class="h-[100px]"></div>
 
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4">
+    <h2 class="text-center mb-4">Unsere Gewässer</h2>
+    <p class="text-center mb-10 text-gray-500">
+      Entdecke die Vielfalt unserer Angelgewässer – von ruhigen Seen bis zu
+      lebendigen Flüssen.
+    </p>
+    <div class="grid grid-cols-12 gap-6">
+
+      <!-- Karte 1 -->
+      <div class="col-span-12 md:col-span-6">
+        <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full">
+          <div class="aspect-video overflow-hidden">
+            <Image src={see1Img} alt="See 1" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xl font-semibold">See 1</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]">Stillgewässer</span>
+            </div>
+            <p class="text-sm text-gray-500 mb-4 leading-relaxed">
+              Unser Hauptgewässer – ein idyllischer See umgeben von Wald und Wiesen. Ideal für Ansitz- und Friedfischangeln.
+            </p>
+            <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <i class="fa-solid fa-location-dot text-[var(--color-primary)] text-xs"></i>
+                <span>12 ha</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <i class="fa-solid fa-ruler text-[var(--color-primary)] text-xs"></i>
+                <span>bis 6 m</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              {["Karpfen","Hecht","Zander","Schleie","Rotauge"].map(f => (
+                <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">{f}</span>
+              ))}
+            </div>
+            <div class="flex items-start gap-1.5 text-xs text-gray-500">
+              <i class="fa-solid fa-circle-info text-[var(--color-primary)] mt-0.5 shrink-0"></i>
+              <span>Nachtangeln erlaubt, max. 2 Ruten</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Karte 2 -->
+      <div class="col-span-12 md:col-span-6">
+        <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full">
+          <div class="aspect-video overflow-hidden">
+            <Image src={see2Img} alt="See 2" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xl font-semibold">See 2</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]">Fließgewässer</span>
+            </div>
+            <p class="text-sm text-gray-500 mb-4 leading-relaxed">
+              Unser Vereinsabschnitt an der Großen Mühl – abwechslungsreicher Fluss mit starker Strömung und klarem Wasser.
+            </p>
+            <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <i class="fa-solid fa-location-dot text-[var(--color-primary)] text-xs"></i>
+                <span>2,4 km</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-gray-500">
+                <i class="fa-solid fa-ruler text-[var(--color-primary)] text-xs"></i>
+                <span>bis 3 m</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              {["Forelle","Äsche","Huchen","Barbe","Döbel"].map(f => (
+                <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">{f}</span>
+              ))}
+            </div>
+            <div class="flex items-start gap-1.5 text-xs text-gray-500">
+              <i class="fa-solid fa-circle-info text-[var(--color-primary)] mt-0.5 shrink-0"></i>
+              <span>Nachtangeln nicht erlaubt, max. 1 Rute</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+
+  <div class="h-[150px]"></div>
+
+
+  <div class="bg-[var(--color-bg-light)]">
+    <div class="h-[100px]"></div>
+    <div class="container mx-auto px-4">
+      <h2 class="text-center mb-4">Unsere Werte</h2>
+      <p class="text-center mb-10 text-gray-500">
+        Diese Grundsätze leiten unser Handeln – am Wasser und darüber hinaus.
+      </p>
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+            <div class="card-icon">
+              <i class="fa-solid fa-tree"></i>
+            </div>
+            <h3 class="font-bold mb-4 mt-6">Naturschutz</h3>
+            <p>
+              Wir setzen uns aktiv für den Erhalt unserer Gewässer und die
+              heimische Tierwelt ein.
+            </p>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+            <div class="card-icon">
+              <i class="fa-solid fa-heart"></i>
+            </div>
+            <h3 class="font-bold mb-4 mt-6">Leidenschaft</h3>
+            <p>
+              Angeln ist mehr als ein Hobby – es ist unsere gemeinsame
+              Leidenschaft.
+            </p>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+            <div class="card-icon">
+              <i class="fa-solid fa-hand-holding-heart"></i>
+            </div>
+
+            <h3 class="font-bold mb-4 mt-6">Förderung</h3>
+            <p>
+              Vom Anfänger bis zum Profi – wir fördern jeden auf seinem Weg.
+            </p>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
+            <div class="card-icon">
+              <i class="fa-solid fa-leaf"></i>
+            </div>
+            <h3 class="font-bold mb-4 mt-6">Nachhaltigkeit</h3>
+            <p>
+              Verantwortungsvoller Umgang mit der Natur steht bei uns an erster
+              Stelle.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="h-[100px]"></div>
+  </div>
+
+  <div class="h-[150px]"></div>
+
+  <div class="container mx-auto px-4">
     <h2 class="text-center mb-4">Was uns ausmacht</h2>
     <p class="text-center mb-10 text-gray-500">
       Mehr als nur ein Verein – wir leben Angeln mit Herz und Gemeinschaft.
@@ -188,69 +344,9 @@ import BecomeMember from "../components/BecomeMember.astro";
     </div>
   </div>
 
-  <div class="h-[100px]"></div>
 
-  <div class="bg-[var(--color-bg-light)] py-8">
-    <div class="container mx-auto px-4 py-8">
-      <h2 class="text-center mb-4">Unsere Werte</h2>
-      <p class="text-center mb-10 text-gray-500">
-        Diese Grundsätze leiten unser Handeln – am Wasser und darüber hinaus.
-      </p>
-      <div class="grid grid-cols-12 gap-6">
-        <div class="col-span-12 md:col-span-6 xl:col-span-3">
-          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
-            <div class="card-icon">
-              <i class="fa-solid fa-tree"></i>
-            </div>
-            <h3 class="font-bold mb-4 mt-6">Naturschutz</h3>
-            <p>
-              Wir setzen uns aktiv für den Erhalt unserer Gewässer und die
-              heimische Tierwelt ein.
-            </p>
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-6 xl:col-span-3">
-          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
-            <div class="card-icon">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-            <h3 class="font-bold mb-4 mt-6">Leidenschaft</h3>
-            <p>
-              Angeln ist mehr als ein Hobby – es ist unsere gemeinsame
-              Leidenschaft.
-            </p>
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-6 xl:col-span-3">
-          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
-            <div class="card-icon">
-              <i class="fa-solid fa-hand-holding-heart"></i>
-            </div>
-
-            <h3 class="font-bold mb-4 mt-6">Förderung</h3>
-            <p>
-              Vom Anfänger bis zum Profi – wir fördern jeden auf seinem Weg.
-            </p>
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-6 xl:col-span-3">
-          <div class="bg-gray-100 shadow h-[100%] p-6 rounded-lg text-center">
-            <div class="card-icon">
-              <i class="fa-solid fa-leaf"></i>
-            </div>
-            <h3 class="font-bold mb-4 mt-6">Nachhaltigkeit</h3>
-            <p>
-              Verantwortungsvoller Umgang mit der Natur steht bei uns an erster
-              Stelle.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="h-[100px]"></div>
+  <div class="h-[150px]"></div>
   <BecomeMember title="Jetzt Mitglied werden" />
 
-  <div class="h-[100px]"></div>
+  <div class="h-[150px]"></div>
 </Layout>

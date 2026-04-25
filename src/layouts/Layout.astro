@@ -71,6 +71,16 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
               >Kontakt</a
             >
           </li>
+          <li class="nav-member-only">
+            <a href="/mitglieder/termine" class="hover:text-[var(--color-secondary)]"
+              >Termine</a
+            >
+          </li>
+          <li class="nav-member-only">
+            <a href="/mitglieder/aktuelles" class="hover:text-[var(--color-secondary)]"
+              >Aktuelles</a
+            >
+          </li>
         </ul>
 
         <!-- Login Button (ausgeloggt) -->
@@ -209,7 +219,17 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
             >Kontakt</a
           >
         </li>
-        <li class="mt-4">
+        <li class="nav-member-only">
+          <a href="/mitglieder/termine" class="block hover:text-[var(--color-secondary)]"
+            >Termine</a
+          >
+        </li>
+        <li class="nav-member-only">
+          <a href="/mitglieder/aktuelles" class="block hover:text-[var(--color-secondary)]"
+            >Aktuelles</a
+          >
+        </li>
+        <li id="mobile-login-li" class="mt-4">
           <a href="/mitglieder/login" class="">
             <MuiButton client:load text="Login" btnType="dark" size="small" />
           </a>
@@ -241,8 +261,8 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       <slot />
     </main>
 
-    <footer class="bg-white text-white mt-12">
-      <div class="container mx-auto px-4 py-8 grid grid-cols-12 gap-6">
+    <footer class="bg-white text-white">
+      <div class="container mx-auto px-6 py-12 grid grid-cols-12 gap-6">
         <div class="col-span-12 md:col-span-3 text-center md:text-left">
           <h3 class="font-bold text-[var(--color-secondary)] mb-2">
             🎣 Fischerverein
@@ -307,7 +327,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         </div>
       </div>
       <div
-        class="border-t border-[var(--color-dark)] text-center text-base text-[var(--color-dark)] py-4"
+        class="border-t border-[var(--color-dark)] text-center text-base text-[var(--color-dark)] py-6"
       >
         © {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.
       </div>

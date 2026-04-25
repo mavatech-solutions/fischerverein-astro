@@ -38,7 +38,7 @@ export default function GallerySection({ title, description, items = [] }) {
         </div>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md bg-[var(--color-secondary)] px-4 py-2 text-white font-semibold transition hover:brightness-110"
+          className=" inline-flexx items-center hidden justify-center rounded-md bg-[var(--color-secondary)] px-4 py-2 text-white font-semibold transition hover:brightness-110"
           onClick={() => openAtIndex(0)}
           disabled={!items.length}
         >

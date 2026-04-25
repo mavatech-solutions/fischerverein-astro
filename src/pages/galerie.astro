@@ -2,73 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import Badge from "../components/Badge.astro";
 import BecomeMember from "../components/BecomeMember.astro";
-import GallerySection from "../components/GallerySection.jsx";
+import DynamicGallery from "../components/DynamicGallery.jsx";
 
-const tournamentGallery = [
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-1/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-1/600/380",
-    subHtml: "<h4>Fruehjahrswettbewerb</h4><p>Gemeinsamer Start am Vereinssteg.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-2/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-2/600/380",
-    subHtml: "<h4>Starke Fange</h4><p>Erfolgreiche Teilnehmer praesentieren ihre Fische.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-3/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-3/600/380",
-    subHtml: "<h4>Siegerehrung</h4><p>Auszeichnung der besten Anglerinnen und Angler.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-4/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-4/600/380",
-    subHtml: "<h4>Teamgeist</h4><p>Zusammenhalt und Freude am Wasser.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-5/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-5/600/380",
-    subHtml: "<h4>Abschlussrunde</h4><p>Gemutlicher Ausklang nach dem Turnier.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-turnier-6/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-turnier-6/600/380",
-    subHtml: "<h4>Am Ufer</h4><p>Schone Momente in der Natur.</p>",
-  },
-];
-
-const eventGallery = [
-  {
-    src: "https://picsum.photos/seed/fischer-event-1/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-1/600/380",
-    subHtml: "<h4>Sommerfest</h4><p>Musik, Grillen und gute Gesprache.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-event-2/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-2/600/380",
-    subHtml: "<h4>Jugendgruppe</h4><p>Nachwuchsarbeit mit viel Begeisterung.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-event-3/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-3/600/380",
-    subHtml: "<h4>Vereinsabend</h4><p>Gemeinschaft und Austausch im Mittelpunkt.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-event-4/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-4/600/380",
-    subHtml: "<h4>Aktion am Ufer</h4><p>Pflege und Schutz unserer Gewasser.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-event-5/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-5/600/380",
-    subHtml: "<h4>Herbsttreffen</h4><p>Traditionelles Treffen mit Vereinsmitgliedern.</p>",
-  },
-  {
-    src: "https://picsum.photos/seed/fischer-event-6/1600/1000",
-    thumb: "https://picsum.photos/seed/fischer-event-6/600/380",
-    subHtml: "<h4>Gemeinsamer Abschluss</h4><p>Ein starker Verein, viele schone Erinnerungen.</p>",
-  },
-];
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 ---
 
 <Layout
@@ -96,26 +33,11 @@ const eventGallery = [
   </section>
   <div class="h-[100px]"></div>
   <div class="container mx-auto px-4">
-    <div class="grid gap-8">
-      <GallerySection
-        client:load
-        title="Angelwettbewerbe"
-        description="Impressionen unserer Turniere, von der Vorbereitung bis zur Siegerehrung."
-        items={tournamentGallery}
-      />
-      <GallerySection
-        client:load
-        title="Vereinsleben & Veranstaltungen"
-        description="Gemeinsame Erlebnisse bei Festen, Treffen und Aktionen am Wasser."
-        items={eventGallery}
-      />
-      <GallerySection
-        client:load
-        title="Am Wasser"
-        description="Gemeinsame Erlebnisse bei Festen, Treffen und Aktionen am Wasser."
-        items={eventGallery}
-      />
-    </div>
+    <DynamicGallery
+      client:load
+      supabaseUrl={supabaseUrl}
+      supabaseKey={supabaseKey}
+    />
   </div>
 
   <div class="h-[80px]"></div>

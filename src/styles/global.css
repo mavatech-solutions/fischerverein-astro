@@ -126,7 +126,11 @@ html[data-authed="true"] #login-btn { display: none !important; }
 html[data-authed="true"] #avatar-menu { display: block !important; }
 html:not([data-authed]) #login-btn { display: none !important; }
 html:not([data-authed]) #avatar-menu { display: none !important; }
-html[data-admin="true"] #admin-link { display: block !important; }
+html[data-admin="true"] #admin-link { display: flex !important; }
+
+.nav-member-only { display: none; }
+html[data-authed="true"] .nav-member-only { display: block !important; }
+html[data-authed="true"] #mobile-login-li { display: none !important; }
 
 /* Breakpoints */
 
