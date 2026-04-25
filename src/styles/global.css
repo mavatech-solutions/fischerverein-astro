@@ -48,6 +48,7 @@ header {
 
 #offcanvas {
   z-index: 100;
+  border-top-left-radius: 1rem;
 }
 
 /* Globale Klassen */
