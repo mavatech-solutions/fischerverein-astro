@@ -54,7 +54,7 @@ header {
 
 /* Globale Klassen */
 .heading-hero {
-  min-height: 95svh;
+  min-height: calc(var(--hero-vh, 95vh) - var(--header-height, 5rem));
 }
 
 /* COUNTER */

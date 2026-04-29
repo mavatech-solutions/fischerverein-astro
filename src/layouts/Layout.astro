@@ -175,12 +175,20 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
     </header>
 
     <script is:inline>
-      function setHeaderHeight() {
-        const h = document.querySelector('header');
-        if (h) document.documentElement.style.setProperty('--header-height', h.offsetHeight + 'px');
+      function setHeroVh() {
+        document.documentElement.style.setProperty('--hero-vh', window.innerHeight + 'px');
       }
-      setHeaderHeight();
-      window.addEventListener('resize', setHeaderHeight);
+      setHeroVh();
+      window.addEventListener('resize', setHeroVh);
+
+      const header = document.querySelector('header');
+      if (header) {
+        const ro = new ResizeObserver(() => {
+          const h = header.offsetHeight;
+          if (h > 0) document.documentElement.style.setProperty('--header-height', h + 'px');
+        });
+        ro.observe(header);
+      }
     </script>
 
     <!-- Offcanvas Overlay -->
@@ -298,7 +306,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       overlay?.addEventListener("click", close);
     </script>
 
-    <main class="flex-1" style="padding-top: var(--header-height)">
+    <main class="flex-1" style="margin-top: var(--header-height)">
       <slot />
     </main>
 
