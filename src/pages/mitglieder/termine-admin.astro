@@ -3,7 +3,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
 ---
 
 <ModeratorLayout title="Termine verwalten">
-  <div class="container mx-auto px-4 py-24">
+  <div class="container mx-auto px-4 py-12">
     <p class="mb-2 text-3xl font-semibold">Termine verwalten</p>
     <p class="text-gray-500 mb-10">Termine hinzufügen, bearbeiten und löschen</p>
 
@@ -57,11 +57,16 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
             </div>
           </div>
         </div>
-        <div class="col-span-12 flex items-center gap-4">
+        <div class="col-span-12 flex flex-wrap items-center gap-4">
           <button type="submit"
             class="bg-[var(--color-primary)] text-white px-6 py-2 rounded-md font-semibold hover:opacity-90 transition">
             Termin erstellen
           </button>
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input id="t-notify" type="checkbox" checked
+              class="w-4 h-4 accent-[var(--color-primary)] cursor-pointer" />
+            <span class="text-sm text-gray-600">Mitglieder benachrichtigen</span>
+          </label>
           <p id="termin-error" class="text-red-500 text-sm hidden"></p>
           <p id="termin-success" class="text-green-600 text-sm hidden"></p>
         </div>
@@ -347,6 +352,19 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
     });
     if (!res.ok) { showToast('Fehler beim Speichern: ' + res.status, 'error'); return; }
 
+    // E-Mail bei Terminänderung immer senden
+    try {
+      await fetch(`${SUPABASE_URL}/functions/v1/send-notification-email`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${getJwt()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type: 'termin_update', titel, datum, uhrzeit, ort }),
+      });
+    } catch { /* E-Mail-Fehler nicht blockieren */ }
+
     tagsStore.delete(`et-${id}`);
     editingTerminId = null;
     loadTermine();
@@ -392,6 +410,20 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
       errEl?.classList.remove('hidden');
       return;
     }
+
+    // E-Mail an alle Mitglieder senden (nur wenn Checkbox aktiv)
+    const notify = (document.getElementById('t-notify') as HTMLInputElement)?.checked;
+    if (notify) try {
+      await fetch(`${SUPABASE_URL}/functions/v1/send-notification-email`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${getJwt()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type: 'termin', titel, datum, uhrzeit, ort, beschreibung }),
+      });
+    } catch { /* E-Mail-Fehler nicht blockieren */ }
 
     okEl!.textContent = `Termin "${titel}" wurde erstellt!`;
     okEl?.classList.remove('hidden');

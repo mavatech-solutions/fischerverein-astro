@@ -1,0 +1,116 @@
+---
+import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
+---
+
+<ProtectedLayout title="Downloads">
+  <section class="bg-[var(--color-secondary)] text-white">
+    <div class="h-24"></div>
+    <div class="container mx-auto px-4 pb-16">
+      <p class="text-sm font-medium uppercase tracking-widest text-white/60 mb-2">Mitgliederbereich</p>
+      <h1 class="text-4xl font-bold mb-2">Downloads</h1>
+      <p class="text-white/70 text-lg">Vereinsdokumente & Formulare</p>
+    </div>
+  </section>
+
+  <section class="bg-[var(--color-bg-light)] py-16">
+    <div class="container mx-auto px-4">
+
+      <div id="kategorie-container">
+        <p class="text-sm text-gray-400">Lädt…</p>
+      </div>
+
+    </div>
+  </section>
+</ProtectedLayout>
+
+<script>
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  function getJwt() {
+    const key = Object.keys(localStorage).find(k => k.includes('auth-token'));
+    const stored = key ? JSON.parse(localStorage.getItem(key) || '{}') : {};
+    return stored?.access_token || SUPABASE_KEY;
+  }
+
+  function escapeHtml(s: string) {
+    return String(s || '')
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  }
+
+  const ICONS: Record<string, string> = {
+    pdf:  'fa-file-pdf text-red-500',
+    doc:  'fa-file-word text-blue-500',
+    docx: 'fa-file-word text-blue-500',
+    xls:  'fa-file-excel text-green-600',
+    xlsx: 'fa-file-excel text-green-600',
+    zip:  'fa-file-zipper text-yellow-500',
+    img:  'fa-file-image text-purple-500',
+  };
+
+  function fileIcon(url: string) {
+    const ext = url.split('.').pop()?.toLowerCase() || '';
+    const cls = ICONS[ext] || 'fa-file text-gray-400';
+    return `<i class="fa-solid ${cls} text-xl"></i>`;
+  }
+
+  async function loadDokumente() {
+    const container = document.getElementById('kategorie-container');
+    if (!container) return;
+
+    let data: any[];
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/dokumente?select=*&order=kategorie.asc,created_at.desc`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${getJwt()}` } }
+      );
+      if (res.status === 401) { window.location.replace('/mitglieder/login'); return; }
+      data = await res.json();
+    } catch (e: any) {
+      container.innerHTML = `<p class="text-red-500 text-sm">Fehler: ${e.message}</p>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || !data.length) {
+      container.innerHTML = '<p class="text-gray-400 text-sm">Keine Dokumente vorhanden.</p>';
+      return;
+    }
+
+    // Gruppieren nach Kategorie
+    const grouped: Record<string, any[]> = {};
+    for (const d of data) {
+      const k = d.kategorie || 'Allgemein';
+      if (!grouped[k]) grouped[k] = [];
+      grouped[k].push(d);
+    }
+
+    let html = '';
+    for (const [kat, docs] of Object.entries(grouped)) {
+      html += `
+        <div class="mb-10">
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">${escapeHtml(kat)}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${docs.map(d => `
+              <a href="${escapeHtml(d.datei_url)}" target="_blank" rel="noopener"
+                 class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-5 flex items-start gap-4">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+                  ${fileIcon(d.datei_url)}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-[var(--color-dark)] leading-snug">${escapeHtml(d.name)}</p>
+                  ${d.beschreibung ? `<p class="text-xs text-gray-400 mt-1 leading-snug">${escapeHtml(d.beschreibung)}</p>` : ''}
+                  <p class="text-xs text-[var(--color-primary)] font-medium mt-2 flex items-center gap-1">
+                    <i class="fa-solid fa-download text-[10px]"></i> Herunterladen
+                  </p>
+                </div>
+              </a>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  loadDokumente();
+</script>

@@ -6,10 +6,11 @@ import { Image } from "astro:assets";
 import vereinGeschichte from "../assets/images/verein-geschichte.jpg";
 import CountUp from "../components/CountUp.jsx";
 import ClubTimeline from "../components/ClubTimeline.jsx";
+import ueberUnsHeader from "../assets/images/ueber-uns-header.jpeg";
 
 const timelineItems = [
   {
-    year: "1974",
+    year: "1987",
     title: "Gründung des Vereins",
     description:
       "Mit einer kleinen Gruppe engagierter Angler begann die Geschichte unseres Fischervereins und legte den Grundstein für eine starke Gemeinschaft.",
@@ -33,19 +34,32 @@ const timelineItems = [
       "Heute verbindet unser Verein gelebte Tradition mit moderner Vereinsarbeit, Naturschutz und einem aktiven Miteinander am Wasser.",
   },
 ];
+
+const GRUENDUNGSDATUM = new Date(1987, 1, 16);
+const heute = new Date();
+const jahreTradit =
+  heute.getMonth() > GRUENDUNGSDATUM.getMonth() ||
+  (heute.getMonth() === GRUENDUNGSDATUM.getMonth() &&
+    heute.getDate() >= GRUENDUNGSDATUM.getDate())
+    ? heute.getFullYear() - GRUENDUNGSDATUM.getFullYear()
+    : heute.getFullYear() - GRUENDUNGSDATUM.getFullYear() - 1;
 ---
 
 <Layout
   title="Verein"
   description="Erfahre mehr ueber unseren Fischerverein, unsere Geschichte und unsere Werte."
 >
-  <section class="bg-[var(--color-secondary)] text-white">
-    <div class="h-[180px]"></div>
-    <div class="container mx-auto px-4">
+  <section class="relative text-white overflow-hidden">
+    <!-- Background image -->
+    <img src={ueberUnsHeader.src} alt="" class="absolute inset-0 w-full h-full object-cover object-center" aria-hidden="true" />
+    <!-- Dark overlay -->
+    <div class="absolute inset-0 bg-[var(--color-secondary)]/80"></div>
+    <div class="h-[120px]"></div>
+    <div class="container mx-auto px-4 relative z-10">
       <div class="w-full min-[992px]:max-w-[50%]">
         <h1 class="text-4xl font-bold mb-4">Über uns</h1>
         <p class="text-lg mb-6">
-          Unser Fischerverein wurde vor über 50 Jahren gegründet und hat sich
+          Unser Fischerverein wurde vor über {jahreTradit} Jahren gegründet und hat sich
           seitdem zu einer lebendigen Gemeinschaft von Anglern entwickelt. Wir
           sind stolz auf unsere reiche Geschichte und die Werte, die uns
           verbinden.
@@ -64,16 +78,12 @@ const timelineItems = [
       <div class="col-span-12 md:col-span-6 order-1 md:order-0">
         <h2 class="mb-8">Mehr als nur ein Angelverein</h2>
         <p>
-          Unser Verein wurde 1974 von einer kleinen Gruppe leidenschaftlicher
+          Unser Verein wurde 1987 von einer kleinen Gruppe leidenschaftlicher
           Angler gegründet. Was als bescheidener Zusammenschluss begann, ist
-          heute eine lebendige Gemeinschaft von über 250 Mitgliedern. Wir
-          pflegen unsere Gewässer mit großer Sorgfalt, fördern den Nachwuchs
-          durch regelmäßige Workshops und setzen uns aktiv für den Naturschutz
-          ein. Bei uns steht das gemeinsame Erleben im Vordergrund – ob bei
+          heute eine lebendige Gemeinschaft von über 22 Mitgliedern. Wir
+          pflegen unsere Gewässer mit großer Sorgfalt. Bei uns steht das gemeinsame Erleben im Vordergrund – ob bei
           geselligen Vereinsabenden, spannenden Wettbewerben oder entspannten
-          Angelausflügen. Unser Ziel ist es, die Freude am Angeln mit
-          Verantwortung für die Natur zu verbinden und das Wissen an die nächste
-          Generation weiterzugeben.
+          Angelausflügen.
         </p>
       </div>
       <div class="col-span-12 md:col-span-6 order-0 md:order-1">
@@ -104,7 +114,7 @@ const timelineItems = [
             <CountUp
               client:load
               from={0}
-              to={40}
+              to={22}
               separator=","
               direction="up"
               duration={1}
@@ -120,13 +130,13 @@ const timelineItems = [
           class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
         >
           <div class="card-icon">
-            <i class="fa-solid fa-landmark"></i>
+            <i class="fa-solid fa-hourglass-half"></i>
           </div>
           <h3 class="font-bold mb-4 mt-2">
             <CountUp
               client:load
               from={0}
-              to={35}
+              to={jahreTradit}
               separator=","
               direction="up"
               duration={1}
@@ -165,13 +175,13 @@ const timelineItems = [
           class="bg-[var(--color-bg-light)] shadow h-[100%] p-6 rounded-lg text-center"
         >
           <div class="card-icon">
-            <i class="fa-solid fa-trophy"></i>
+            <i class="fa-solid fa-calendar"></i>
           </div>
           <h3 class="font-bold mb-4 mt-2">
             <CountUp
               client:load
               from={0}
-              to={10}
+              to={6}
               separator=","
               direction="up"
               duration={1}
@@ -179,7 +189,7 @@ const timelineItems = [
               startWhen={true}
             />
           </h3>
-          <p>Auszeichnungen</p>
+          <p>Events pro Jahr</p>
         </div>
       </div>
     </div>

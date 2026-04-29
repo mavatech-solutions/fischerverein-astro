@@ -138,10 +138,12 @@ Deno.serve(async (req) => {
     const subject =
       type === 'termin'
         ? `Neuer Termin: ${titel}`
-        : `Neues im Aktuelles: ${titel}`
+        : type === 'termin_update'
+          ? `Terminänderung: ${titel}`
+          : `Neues im Aktuelles: ${titel}`
 
     const html =
-      type === 'termin'
+      type === 'termin' || type === 'termin_update'
         ? buildTerminHtml(titel, datum, uhrzeit, ort, beschreibung)
         : buildBeitragHtml(titel, inhalt, autor_name)
 

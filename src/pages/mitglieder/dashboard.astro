@@ -5,12 +5,13 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
 <ProtectedLayout title="Dashboard">
   <!-- Hero -->
   <section class="bg-[var(--color-secondary)] text-white">
-    <div class="h-[180px]"></div>
-    <div class="container mx-auto px-4 pb-16">
+    <div class="h-[120px]"></div>
+    <div class="container mx-auto px-4">
       <p class="text-sm font-medium uppercase tracking-widest text-white/60 mb-2">Mitgliederbereich</p>
       <h1 class="text-4xl font-bold mb-2" id="dash-greeting">Willkommen!</h1>
       <p class="text-white/70 text-lg">Schön, dass du dabei bist.</p>
     </div>
+    <div class="h-[120px]"></div>
   </section>
 
   <section class="bg-[var(--color-bg-light)] py-16">
@@ -53,6 +54,18 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
             <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Verein</p>
             <p class="text-base font-semibold text-[var(--color-dark)]">Aktuelles</p>
             <p class="text-sm text-gray-500 mt-1">Neuigkeiten &amp; Berichte</p>
+          </div>
+        </a>
+
+        <a href="/mitglieder/dokumente"
+           class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-6 flex items-start gap-4">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-folder-open text-base"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Verein</p>
+            <p class="text-base font-semibold text-[var(--color-dark)]">Downloads</p>
+            <p class="text-sm text-gray-500 mt-1">Dokumente &amp; Formulare</p>
           </div>
         </a>
 
@@ -104,6 +117,18 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
           </div>
         </a>
 
+        <a id="dokumente-admin-link" href="/mitglieder/dokumente-admin" style="display:none"
+           class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-6 flex items-start gap-4">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-file-arrow-up text-base"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Inhalt</p>
+            <p class="text-base font-semibold text-[var(--color-dark)]">Dokumente verwalten</p>
+            <p class="text-sm text-gray-500 mt-1">Vereinsdokumente &amp; Formulare</p>
+          </div>
+        </a>
+
       </div>
 
       <!-- Jahresbeitrag -->
@@ -138,6 +163,7 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
     document.getElementById('galerie-admin-link')?.style.setProperty('display', 'flex');
     document.getElementById('termine-admin-link')?.style.setProperty('display', 'flex');
     document.getElementById('aktuelles-admin-link')?.style.setProperty('display', 'flex');
+    document.getElementById('dokumente-admin-link')?.style.setProperty('display', 'flex');
   }
 
   // Begrüßung mit Name
@@ -203,9 +229,9 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
         <div>
           <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Per Banküberweisung</p>
           <dl class="text-sm space-y-1.5">
-            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">Kontoinhaber</dt><dd class="font-medium text-[var(--color-dark)]">Fischerverein Musterstadt</dd></div>
-            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">IBAN</dt><dd class="font-mono text-[var(--color-dark)]">DE00 0000 0000 0000 0000 00</dd></div>
-            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">BIC</dt><dd class="font-mono text-[var(--color-dark)]">XXXXXXXXX</dd></div>
+            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">Kontoinhaber</dt><dd class="font-medium text-[var(--color-dark)]">Fischerverein Bottwartal Oberstenfeld-Gronau E.V.</dd></div>
+            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">IBAN</dt><dd class="font-mono text-[var(--color-dark)]">DE89 6029 1120 0328 4910 04</dd></div>
+            <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">BIC</dt><dd class="font-mono text-[var(--color-dark)]">GENODES1VBK</dd></div>
             <div class="flex gap-2"><dt class="text-gray-400 w-28 shrink-0">Verwendung</dt><dd class="text-[var(--color-dark)]">${verwendung}</dd></div>
           </dl>
         </div>

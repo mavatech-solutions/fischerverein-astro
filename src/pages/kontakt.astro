@@ -8,7 +8,7 @@ import Badge from "../components/Badge.astro";
   description="Nimm Kontakt mit unserem Fischerverein auf und erfahre mehr über unsere Aktivitäten."
 >
   <section class="bg-[var(--color-secondary)] text-white">
-    <div class="h-[180px]"></div>
+    <div class="h-[120px]"></div>
     <div class="container mx-auto px-4">
       <div class="w-full min-[992px]:max-w-[50%]">
         <h1 class="text-4xl font-bold mb-4">Kontakt</h1>
@@ -96,7 +96,7 @@ import Badge from "../components/Badge.astro";
                 >
                   <option value="" disabled selected>Betreff wählen</option>
                   <option value="mitgliedschaft">Mitgliedschaft</option>
-                  <option value="angelschein">Angelschein / Erlaubnis</option>
+                  <!-- <option value="tageskarten">Tageskarten</option> -->
                   <option value="veranstaltung">Veranstaltung</option>
                   <option value="sonstiges">Sonstiges</option>
                 </select>
@@ -148,27 +148,11 @@ import Badge from "../components/Badge.astro";
                       Adresse
                     </p>
                     <p class="text-sm font-medium text-[var(--color-dark)]">
-                      Musterstraße 1, 12345 Musterstadt
+                      Stormstraße 2, 71691 Freiberg am Neckar
                     </p>
                   </div>
                 </div>
-                <div class="flex items-center gap-4">
-                  <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)]"
-                  >
-                    <i class="fa-solid fa-phone"></i>
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs text-gray-400 font-medium uppercase tracking-wide"
-                    >
-                      Telefon
-                    </p>
-                    <p class="text-sm font-medium text-[var(--color-dark)]">
-                      01234 / 567890
-                    </p>
-                  </div>
-                </div>
+                
                 <div class="flex items-center gap-4">
                   <div
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)]"
@@ -182,47 +166,20 @@ import Badge from "../components/Badge.astro";
                       E-Mail
                     </p>
                     <p class="text-sm font-medium text-[var(--color-dark)]">
-                      info@fischerverein.de
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-4">
-                  <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)]"
-                  >
-                    <i class="fa-regular fa-clock"></i>
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs text-gray-400 font-medium uppercase tracking-wide"
-                    >
-                      Erreichbarkeit
-                    </p>
-                    <p class="text-sm font-medium text-[var(--color-dark)]">
-                      Mo–Fr: 9:00 – 17:00 Uhr
+                      info@fv-oberstenfeld-gronau.de
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Google Maps -->
-            <div
-              class="aspect-video rounded-lg mb-8 bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm"
-            >
-              <div class="text-center">
-                <i
-                  class="fa-solid fa-map-location-dot text-3xl text-gray-300 mb-2"
-                ></i>
-                <p class="text-sm text-gray-400">Google Maps</p>
-              </div>
-            </div>
+           
 
             <!-- Quick-Links -->
-            <div class="grid grid-cols-2 gap-3">
-              <a
-                href="/kontakt"
-                class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-4 flex items-center gap-3 group"
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                id="open-mitglied-modal"
+                class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-4 flex items-center gap-3 group text-left w-full"
               >
                 <div
                   class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors"
@@ -235,23 +192,7 @@ import Badge from "../components/Badge.astro";
                   </p>
                   <p class="text-xs text-gray-400">Jetzt beitreten</p>
                 </div>
-              </a>
-              <a
-                href="/kontakt"
-                class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-4 flex items-center gap-3 group"
-              >
-                <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors"
-                >
-                  <i class="fa-solid fa-file-lines text-sm"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-semibold text-[var(--color-dark)]">
-                    Downloads
-                  </p>
-                  <p class="text-xs text-gray-400">Formulare &amp; Satzung</p>
-                </div>
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -259,6 +200,97 @@ import Badge from "../components/Badge.astro";
     </div>
         <div class="h-[150px]"></div>
   </section>
+
+  <!-- Modal: Mitglied werden -->
+  <div id="mitglied-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
+    aria-modal="true" role="dialog">
+    <!-- Backdrop -->
+    <div id="modal-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <!-- Panel -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <!-- Header -->
+      <div class="bg-[var(--color-secondary)] rounded-t-2xl px-6 py-5 flex items-start justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-white/60 mb-1">Fischerverein Oberstenfeld Gronau e.V</p>
+          <h2 class="text-xl font-bold text-white">Mitglied werden</h2>
+        </div>
+        <button id="close-mitglied-modal" class="text-white/70 hover:text-white transition mt-0.5">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Inhalt -->
+      <div class="px-6 py-6 space-y-6">
+
+        <!-- Voraussetzungen -->
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Voraussetzungen</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#d1e5e3] text-[var(--color-secondary)] mt-0.5">
+                <i class="fa-solid fa-check text-xs"></i>
+              </span>
+              <p class="text-sm text-gray-700">Gültiger <strong>Fischereischein</strong> (Jahres- oder Jugendfischereischein)</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#d1e5e3] text-[var(--color-secondary)] mt-0.5">
+                <i class="fa-solid fa-check text-xs"></i>
+              </span>
+              <p class="text-sm text-gray-700">Mindestalter <strong>14 Jahre</strong> (unter 18 Jahren mit Einverständnis der Eltern)</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#d1e5e3] text-[var(--color-secondary)] mt-0.5">
+                <i class="fa-solid fa-check text-xs"></i>
+              </span>
+              <p class="text-sm text-gray-700">Bereitschaft zur aktiven <strong>Mitarbeit</strong> bei Vereinsaktivitäten</p>
+            </li>
+          </ul>
+        </div>
+
+        <hr class="border-gray-100" />
+
+        <!-- Ablauf -->
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">So wirst du Mitglied</p>
+          <ol class="space-y-4">
+            <li class="flex gap-4">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white text-xs font-bold">1</span>
+              <div>
+                <p class="text-sm font-semibold text-[var(--color-dark)]">Kontakt aufnehmen</p>
+                <p class="text-xs text-gray-500 mt-0.5">Schreib uns über das Kontaktformular oder melde dich direkt per E-Mail.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white text-xs font-bold">2</span>
+              <div>
+                <p class="text-sm font-semibold text-[var(--color-dark)]">Aufnahme durch den Vorstand</p>
+                <p class="text-xs text-gray-500 mt-0.5">Der Vorstand prüft den Antrag und bestätigt deine Aufnahme.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-white text-xs font-bold">3</span>
+              <div>
+                <p class="text-sm font-semibold text-[var(--color-dark)]">Jahresbeitrag entrichten</p>
+                <p class="text-xs text-gray-500 mt-0.5">Nach der Aufnahme wird der Jahresbeitrag fällig. Willkommen im Verein!</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <hr class="border-gray-100" />
+
+        <!-- CTA -->
+        <button
+          id="modal-to-kontakt"
+          class="w-full py-3 bg-[var(--color-primary)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--color-secondary)] transition flex items-center justify-center gap-2">
+          <i class="fa-regular fa-paper-plane text-sm"></i>
+          Jetzt Kontakt aufnehmen
+        </button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <script>
@@ -339,5 +371,35 @@ import Badge from "../components/Badge.astro";
     okEl?.classList.remove("hidden");
     (e.target as HTMLFormElement).reset();
     resetBtn();
+  });
+
+  // Modal: Mitglied werden
+  const modal    = document.getElementById('mitglied-modal')!;
+  const backdrop = document.getElementById('modal-backdrop')!;
+
+  function openModal() {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('open-mitglied-modal')?.addEventListener('click', openModal);
+  document.getElementById('close-mitglied-modal')?.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+
+  document.getElementById('modal-to-kontakt')?.addEventListener('click', () => {
+    closeModal();
+    (document.getElementById('k-betreff') as HTMLSelectElement).value = 'mitgliedschaft';
+    const vorname = document.getElementById('k-vorname') as HTMLInputElement;
+    vorname?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => vorname?.focus(), 400);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
   });
 </script>

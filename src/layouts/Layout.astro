@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import MuiButton from "../components/MuiButton.jsx";
+import logoSrc from "../assets/images/logo.svg";
 
 interface Props {
   title: string;
@@ -13,7 +14,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
 <html lang="de">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
@@ -47,10 +48,12 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         class="container mx-auto px-4 py-4 flex items-center justify-between"
       >
         <!-- Logo -->
-        <a href="/" class="text-xl font-bold">🎣 Fischerverein</a>
+        <a href="/" class="flex items-center">
+          <img src={logoSrc.src} alt="Fischerverein Logo" class=" w-auto max-w-[170px]" />
+        </a>
 
         <!-- Desktop Links -->
-        <ul class="hidden md:flex items-center gap-6 text-base font-medium">
+        <ul class="hidden lg:flex items-center gap-6 text-base font-medium">
           <li>
             <a href="/" class="hover:text-[var(--color-secondary)]"
               >Startseite</a
@@ -88,7 +91,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
           <a
             id="login-btn"
             href="/mitglieder/login"
-            class="hidden md:inline-block"
+            class="hidden lg:inline-block"
           >
             <MuiButton client:only="react" text="Login" size="medium" />
           </a>
@@ -154,7 +157,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
           </div>
         </div>
         <!-- Hamburger Button (nur Mobile) -->
-        <button id="open-menu" class="md:hidden">
+        <button id="open-menu" class="lg:hidden">
           <svg
             class="w-6 h-6"
             fill="none"
@@ -170,6 +173,15 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         </button>
       </nav>
     </header>
+
+    <script is:inline>
+      function setHeaderHeight() {
+        const h = document.querySelector('header');
+        if (h) document.documentElement.style.setProperty('--header-height', h.offsetHeight + 'px');
+      }
+      setHeaderHeight();
+      window.addEventListener('resize', setHeaderHeight);
+    </script>
 
     <!-- Offcanvas Overlay -->
     <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
@@ -234,6 +246,35 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
             <MuiButton client:load text="Login" btnType="dark" size="small" />
           </a>
         </li>
+
+        <!-- Mobile Avatar Section (eingeloggt) -->
+        <li id="mobile-avatar-section" class="mt-4 border-t border-[var(--color-secondary)] pt-4">
+          <div class="flex items-center gap-3 mb-4">
+            <span
+              id="mobile-avatar-circle"
+              class="w-10 h-10 rounded-full bg-white/20 text-white font-bold flex items-center justify-center overflow-hidden bg-cover bg-center flex-shrink-0"
+            >
+              <span id="mobile-avatar-initial">?</span>
+            </span>
+            <span id="mobile-avatar-name" class="text-sm font-medium text-white/80"></span>
+          </div>
+          <ul class="space-y-3">
+            <li>
+              <a href="/mitglieder/dashboard" class="block text-lg hover:text-[var(--color-secondary)]">Dashboard</a>
+            </li>
+            <li id="mobile-admin-link" style="display:none">
+              <a href="/mitglieder/admin" class="block text-lg hover:text-[var(--color-secondary)]">Admin</a>
+            </li>
+            <li>
+              <a href="/mitglieder/profil" class="block text-lg hover:text-[var(--color-secondary)]">Profil</a>
+            </li>
+            <li>
+              <button id="mobile-logout-btn" class="text-left text-lg text-red-500 mt-1">
+                Abmelden
+              </button>
+            </li>
+          </ul>
+        </li>
       </ul>
     </div>
 
@@ -257,22 +298,20 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       overlay?.addEventListener("click", close);
     </script>
 
-    <main class="flex-1">
+    <main class="flex-1" style="padding-top: var(--header-height)">
       <slot />
     </main>
 
     <footer class="bg-white text-white">
       <div class="container mx-auto px-6 py-12 grid grid-cols-12 gap-6">
         <div class="col-span-12 md:col-span-3 text-center md:text-left">
-          <h3 class="font-bold text-[var(--color-secondary)] mb-2">
-            🎣 Fischerverein
-          </h3>
+          <img src={logoSrc.src} alt="Fischerverein Logo" class="h-16 w-auto max-w-[170px] mx-auto md:mx-0 mb-3" />
           <p class="text-base text-[var(--color-dark)]">
-            Ihr lokaler Fischerverein – Gemeinschaft, Natur und Tradition.
+            Gemeinschaft, Natur und Tradition.
           </p>
         </div>
         <div
-          class="col-span-12 md:col-span-2 md:col-start-5 text-center md:text-left"
+          class="col-span-12 md:col-span-2 md:col-start-9 text-center md:text-right"
         >
           <h3 class="font-bold text-[var(--color-secondary)] mb-2">Links</h3>
           <ul class="text-base text-[var(--color-dark)] space-y-1">
@@ -293,7 +332,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
             </li>
           </ul>
         </div>
-        <div class="col-span-12 md:col-span-2 text-center md:text-left">
+        <div class="col-span-12 md:col-span-2 md:col-start-11 text-center md:text-right">
           <h3 class="font-bold text-[var(--color-secondary)] mb-2">
             Rechtliches
           </h3>
@@ -310,26 +349,28 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
             </li>
           </ul>
         </div>
-        <div class="col-span-12 md:col-span-2 text-center md:text-left">
-          <h3 class="font-bold text-[var(--color-secondary)] mb-2">Kontakt</h3>
-          <ul class="text-base text-[var(--color-dark)] space-y-1">
-            <li>
-              <a href="/impressum" class="hover:text-[var(--color-secondary)]"
-                >Impressum</a
-              >
-            </li>
-            <li>
-              <a href="/datenschutz" class="hover:text-[var(--color-secondary)]"
-                >Datenschutz</a
-              >
-            </li>
-          </ul>
-        </div>
       </div>
-      <div
-        class="border-t border-[var(--color-dark)] text-center text-base text-[var(--color-dark)] py-6"
-      >
-        © {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.
+      <div class="border-t border-gray-100">
+        <div class="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.</span>
+          <a
+            href="https://mavatech-solutions.de"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex flex-col items-center sm:items-end gap-0.5"
+          >
+            <span class="flex items-center gap-1.5 text-sm">
+              <span class="text-gray-400">powered by</span>
+              <span class="font-semibold text-[var(--color-dark)] group-hover:text-[var(--color-primary)] transition-colors duration-200">
+                mavatech-solutions.de
+              </span>
+              <svg class="w-3.5 h-3.5 text-[var(--color-primary)] opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </span>
+            <span class="text-xs text-gray-400 italic">Digitale Lösungen für eine digitale Welt.</span>
+          </a>
+        </div>
       </div>
     </footer>
 
@@ -379,6 +420,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       }
 
       function applyAvatar(avatar_url: string, full_name: string) {
+        // Desktop
         const avatarCircle = document.getElementById("avatar-circle") as HTMLElement;
         const navInitial = document.getElementById("avatar-initial");
         if (avatar_url && avatarCircle) {
@@ -387,6 +429,17 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         } else if (full_name && navInitial) {
           navInitial.textContent = full_name.charAt(0).toUpperCase();
         }
+        // Mobile
+        const mobileCircle = document.getElementById("mobile-avatar-circle") as HTMLElement;
+        const mobileInitial = document.getElementById("mobile-avatar-initial");
+        const mobileName = document.getElementById("mobile-avatar-name");
+        if (avatar_url && mobileCircle) {
+          mobileCircle.style.backgroundImage = `url(${avatar_url})`;
+          if (mobileInitial) mobileInitial.style.display = "none";
+        } else if (full_name && mobileInitial) {
+          mobileInitial.textContent = full_name.charAt(0).toUpperCase();
+        }
+        if (full_name && mobileName) mobileName.textContent = full_name;
       }
 
       // Dropdown toggle
@@ -394,8 +447,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         document.getElementById("avatar-dropdown")?.classList.toggle("hidden");
       });
 
-      // Logout
-      document.getElementById("logout-btn")?.addEventListener("click", () => {
+      const logoutHandler = () => {
         document.cookie = "sb-auth=; path=/; SameSite=Strict; max-age=0";
         document.cookie = "sb-role=; path=/; SameSite=Strict; max-age=0";
         for (const key of Object.keys(localStorage)) {
@@ -403,7 +455,10 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
         }
         supabase.auth.signOut().catch(() => {});
         window.location.href = "/";
-      });
+      };
+
+      document.getElementById("logout-btn")?.addEventListener("click", logoutHandler);
+      document.getElementById("mobile-logout-btn")?.addEventListener("click", logoutHandler);
     </script>
   </body>
 </html>

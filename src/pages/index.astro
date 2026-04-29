@@ -7,11 +7,35 @@ import BecomeMember from "../components/BecomeMember.astro";
 import { Image } from "astro:assets";
 import see1Img from "../assets/images/see1.jpeg";
 import see2Img from "../assets/images/see2.jpeg";
+
+const GRUENDUNGSDATUM = new Date(1987, 1, 16);
+const heute = new Date();
+const jahreTradit =
+  heute.getMonth() > GRUENDUNGSDATUM.getMonth() ||
+  (heute.getMonth() === GRUENDUNGSDATUM.getMonth() &&
+    heute.getDate() >= GRUENDUNGSDATUM.getDate())
+    ? heute.getFullYear() - GRUENDUNGSDATUM.getFullYear()
+    : heute.getFullYear() - GRUENDUNGSDATUM.getFullYear() - 1;
 ---
 
 <Layout title="Startseite">
-  <div class="heading-hero flex justify-center items-center">
-    <div class="container mx-auto px-4 py-8">
+  <div
+    class="heading-hero flex justify-center items-center relative overflow-hidden"
+    style="margin-top: calc(-1 * var(--header-height))"
+  >
+    <!-- Background image -->
+    <img
+      src={see1Img.src}
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover object-center"
+      aria-hidden="true"
+    />
+    <!-- Dark gradient overlay -->
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/20"
+    >
+    </div>
+    <div class="container mx-auto px-4 py-8 relative z-10">
       <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 md:col-span-7 xl:col-span-5">
           <Badge text="Willkommen bei Fischerverein" />
@@ -19,9 +43,9 @@ import see2Img from "../assets/images/see2.jpeg";
             Gemeinsam am Wasser, gemeinsam erleben.
           </h1>
           <p class="text-lg text-white">
-            Seit über 50 Jahren verbindet uns die Leidenschaft fürs Angeln.
-            Werde Teil unserer Gemeinschaft und entdecke die schönsten Gewässer
-            der Region.
+            Seit über {jahreTradit} Jahren verbindet uns die Leidenschaft fürs Angeln.
+            Werde Teil unserer Gemeinschaft und entdecke die schönsten Gewässer der
+            Region.
           </p>
           <div class="mt-6 flex gap-4 flex-wrap">
             <MuiButton
@@ -29,12 +53,14 @@ import see2Img from "../assets/images/see2.jpeg";
               text="Mitglied werden"
               btnType="white"
               size="large"
+              href="/kontakt"
             />
             <MuiButton
               client:load
               text="Mehr erfahren"
               btnType="outline"
               size="large"
+              href="/verein"
             />
           </div>
         </div>
@@ -52,7 +78,7 @@ import see2Img from "../assets/images/see2.jpeg";
           <CountUp
             client:load
             from={0}
-            to={40}
+            to={22}
             separator=","
             direction="up"
             duration={1}
@@ -88,7 +114,7 @@ import see2Img from "../assets/images/see2.jpeg";
           <CountUp
             client:load
             from={0}
-            to={30}
+            to={jahreTradit}
             separator=","
             direction="up"
             duration={1}
@@ -106,7 +132,7 @@ import see2Img from "../assets/images/see2.jpeg";
           <CountUp
             client:visible
             from={0}
-            to={5}
+            to={6}
             separator=","
             direction="up"
             duration={1}
@@ -124,43 +150,44 @@ import see2Img from "../assets/images/see2.jpeg";
   <div class="container mx-auto px-4">
     <h2 class="text-center mb-4">Unsere Gewässer</h2>
     <p class="text-center mb-10 text-gray-500">
-      Entdecke die Vielfalt unserer Angelgewässer – von ruhigen Seen bis zu
-      lebendigen Flüssen.
+      Entdecke die Vielfalt unserer Angelgewässer - zwei Paradiese für jeden
+      Angler.
     </p>
     <div class="grid grid-cols-12 gap-6">
-
       <!-- Karte 1 -->
       <div class="col-span-12 md:col-span-6">
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full">
+        <div
+          class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full"
+        >
           <div class="aspect-video overflow-hidden">
-            <Image src={see1Img} alt="See 1" class="w-full h-full object-cover" />
+            <Image
+              src={see1Img}
+              alt="See 1"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div class="p-5">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xl font-semibold">See 1</h3>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]">Stillgewässer</span>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold">Alter Badeweiher Burk</h3>
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]"
+                >Stillgewässer</span
+              >
             </div>
             <p class="text-sm text-gray-500 mb-4 leading-relaxed">
-              Unser Hauptgewässer – ein idyllischer See umgeben von Wald und Wiesen. Ideal für Ansitz- und Friedfischangeln.
+              Unser Hauptgewässer – ein idyllischer See umgeben von Wald und
+              Wiesen. Ideal für Ansitz- und Friedfischangeln.
             </p>
-            <div class="grid grid-cols-2 gap-3 text-sm mb-4">
-              <div class="flex items-center gap-1.5 text-gray-500">
-                <i class="fa-solid fa-location-dot text-[var(--color-primary)] text-xs"></i>
-                <span>12 ha</span>
-              </div>
-              <div class="flex items-center gap-1.5 text-gray-500">
-                <i class="fa-solid fa-ruler text-[var(--color-primary)] text-xs"></i>
-                <span>bis 6 m</span>
-              </div>
-            </div>
             <div class="flex flex-wrap gap-1.5 mb-3">
-              {["Karpfen","Hecht","Zander","Schleie","Rotauge"].map(f => (
-                <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">{f}</span>
-              ))}
-            </div>
-            <div class="flex items-start gap-1.5 text-xs text-gray-500">
-              <i class="fa-solid fa-circle-info text-[var(--color-primary)] mt-0.5 shrink-0"></i>
-              <span>Nachtangeln erlaubt, max. 2 Ruten</span>
+              {
+                ["Karpfen", "Hecht", "Zander", "Schleie", "Rotauge", "Barsch", "Forelle"].map(
+                  (f) => (
+                    <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">
+                      {f}
+                    </span>
+                  ),
+                )
+              }
             </div>
           </div>
         </div>
@@ -168,48 +195,43 @@ import see2Img from "../assets/images/see2.jpeg";
 
       <!-- Karte 2 -->
       <div class="col-span-12 md:col-span-6">
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full">
+        <div
+          class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full"
+        >
           <div class="aspect-video overflow-hidden">
-            <Image src={see2Img} alt="See 2" class="w-full h-full object-cover" />
+            <Image
+              src={see2Img}
+              alt="See 2"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div class="p-5">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xl font-semibold">See 2</h3>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]">Fließgewässer</span>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold">Mittlerer Helingweiher</h3>
+              <span
+                class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#d1e5e3] text-[var(--color-secondary)]"
+                >Stillgewässer</span
+              >
             </div>
             <p class="text-sm text-gray-500 mb-4 leading-relaxed">
-              Unser Vereinsabschnitt an der Großen Mühl – abwechslungsreicher Fluss mit starker Strömung und klarem Wasser.
+              Ein ruhig gelegenes Gewässer - Perfekt für jeden der eine Auszeit beim Angeln sucht!
             </p>
-            <div class="grid grid-cols-2 gap-3 text-sm mb-4">
-              <div class="flex items-center gap-1.5 text-gray-500">
-                <i class="fa-solid fa-location-dot text-[var(--color-primary)] text-xs"></i>
-                <span>2,4 km</span>
-              </div>
-              <div class="flex items-center gap-1.5 text-gray-500">
-                <i class="fa-solid fa-ruler text-[var(--color-primary)] text-xs"></i>
-                <span>bis 3 m</span>
-              </div>
-            </div>
             <div class="flex flex-wrap gap-1.5 mb-3">
-              {["Forelle","Äsche","Huchen","Barbe","Döbel"].map(f => (
-                <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">{f}</span>
-              ))}
-            </div>
-            <div class="flex items-start gap-1.5 text-xs text-gray-500">
-              <i class="fa-solid fa-circle-info text-[var(--color-primary)] mt-0.5 shrink-0"></i>
-              <span>Nachtangeln nicht erlaubt, max. 1 Rute</span>
+              {
+                ["Karpfen", "Hecht", "Rotauge", "Graskarpfen"].map((f) => (
+                  <span class="px-2.5 py-0.5 rounded-full border border-gray-200 text-xs text-[var(--color-dark)]">
+                    {f}
+                  </span>
+                ))
+              }
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
-  
-
   <div class="h-[150px]"></div>
-
 
   <div class="bg-[var(--color-bg-light)]">
     <div class="h-[100px]"></div>
@@ -343,7 +365,6 @@ import see2Img from "../assets/images/see2.jpeg";
       </div>
     </div>
   </div>
-
 
   <div class="h-[150px]"></div>
   <BecomeMember title="Jetzt Mitglied werden" />

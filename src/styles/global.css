@@ -7,6 +7,7 @@
   --color-accent: #d4ac0d;
   --color-dark: #232323;
   --color-bg-light: #e9e9e9;
+  --header-height: 5rem; /* fallback, wird per JS überschrieben */
 }
 
 body {
@@ -53,7 +54,6 @@ header {
 
 /* Globale Klassen */
 .heading-hero {
-  background-color: var(--color-secondary);
   min-height: 95svh;
 }
 
@@ -124,14 +124,21 @@ header {
 
 html[data-authed="false"] #avatar-menu { display: none !important; }
 html[data-authed="true"] #login-btn { display: none !important; }
-html[data-authed="true"] #avatar-menu { display: block !important; }
 html:not([data-authed]) #login-btn { display: none !important; }
 html:not([data-authed]) #avatar-menu { display: none !important; }
 html[data-admin="true"] #admin-link { display: flex !important; }
 
+@media (min-width: 1024px) {
+  html[data-authed="true"] #avatar-menu { display: block !important; }
+}
+
 .nav-member-only { display: none; }
 html[data-authed="true"] .nav-member-only { display: block !important; }
 html[data-authed="true"] #mobile-login-li { display: none !important; }
+
+#mobile-avatar-section { display: none; }
+html[data-authed="true"] #mobile-avatar-section { display: block !important; }
+html[data-admin="true"] #mobile-admin-link { display: block !important; }
 
 /* Breakpoints */
 
