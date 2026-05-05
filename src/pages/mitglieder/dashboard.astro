@@ -69,6 +69,18 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
           </div>
         </a>
 
+        <a href="/mitglieder/faenge"
+           class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-6 flex items-start gap-4">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-trophy text-base"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Wettbewerb</p>
+            <p class="text-base font-semibold text-[var(--color-dark)]">Fangbuch &amp; Ranking</p>
+            <p class="text-sm text-gray-500 mt-1">Fänge eintragen &amp; vergleichen</p>
+          </div>
+        </a>
+
         <a id="admin-link" href="/mitglieder/admin" style="display:none"
            class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-6 flex items-start gap-4">
           <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
@@ -129,6 +141,18 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
           </div>
         </a>
 
+        <a id="faenge-admin-link" href="/mitglieder/faenge-admin" style="display:none"
+           class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[var(--color-primary)] transition-all p-6 flex items-start gap-4">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1e5e3] text-[var(--color-secondary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-fish text-base"></i>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Inhalt</p>
+            <p class="text-base font-semibold text-[var(--color-dark)]">Fänge verwalten</p>
+            <p class="text-sm text-gray-500 mt-1">Einträge prüfen &amp; löschen</p>
+          </div>
+        </a>
+
       </div>
 
       <!-- Jahresbeitrag -->
@@ -164,6 +188,7 @@ import ProtectedLayout from '../../layouts/ProtectedLayout.astro';
     document.getElementById('termine-admin-link')?.style.setProperty('display', 'flex');
     document.getElementById('aktuelles-admin-link')?.style.setProperty('display', 'flex');
     document.getElementById('dokumente-admin-link')?.style.setProperty('display', 'flex');
+    document.getElementById('faenge-admin-link')?.style.setProperty('display', 'flex');
   }
 
   // Begrüßung mit Name

@@ -1,0 +1,621 @@
+---
+import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+import Badge from "../../components/Badge.astro";
+---
+
+<ProtectedLayout title="Fangbuch & Ranking">
+  <!-- Hero -->
+  <section class="bg-[var(--color-secondary)] text-white">
+    <div class="h-[120px]"></div>
+    <div class="container mx-auto px-4">
+      <div class="w-full min-[992px]:max-w-[50%]">
+        <h1 class="text-4xl font-bold mb-4">Fangbuch &amp; Ranking</h1>
+        <p class="text-lg mb-6">
+          Tragt eure Fänge ein und verfolgt das Vereinsranking. Wer angelt den
+          größten Hecht? Wer bringt den schwersten Karpfen an Land?
+        </p>
+        <Badge text="Wettbewerb" />
+        <Badge text="Fänge" />
+        <Badge text="Ranking" />
+      </div>
+      <div class="h-[120px]"></div>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <div class="bg-gray-50 py-12 px-4">
+    <div class="mx-auto w-full max-w-5xl">
+
+      <!-- Controls -->
+      <!-- View toggle + Fang eintragen -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div class="flex bg-white border border-gray-200 rounded-xl overflow-hidden text-sm shadow-sm">
+          <button id="view-alle"
+            class="view-btn px-5 py-2 font-medium transition bg-[var(--color-primary)] text-white">
+            <i class="fa-solid fa-list-ol mr-1.5"></i>Alle Fänge
+          </button>
+          <button id="view-meine"
+            class="view-btn px-5 py-2 font-medium transition text-gray-600 border-l border-gray-200">
+            <i class="fa-solid fa-user mr-1.5"></i>Meine Fänge
+          </button>
+        </div>
+        <button onclick="openAddModal()"
+          class="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition shadow-sm">
+          <i class="fa-solid fa-plus"></i>
+          Fang eintragen
+        </button>
+      </div>
+
+      <!-- Sort + Filter (nur im Ranking-Modus) -->
+      <div id="ranking-controls" class="flex flex-wrap items-center gap-3 mb-6">
+        <div class="flex bg-white border border-gray-200 rounded-xl overflow-hidden text-sm shadow-sm">
+          <button id="sort-gewicht" onclick="setSortKey('gewicht')"
+            class="sort-btn px-4 py-2 font-medium transition bg-[var(--color-primary)] text-white">
+            Gewicht
+          </button>
+          <button id="sort-laenge" onclick="setSortKey('laenge')"
+            class="sort-btn px-4 py-2 font-medium transition text-gray-600 border-l border-gray-200">
+            Länge
+          </button>
+        </div>
+        <select id="filter-fischart" onchange="applyFilters()"
+          class="bg-white border border-gray-200 rounded-xl text-sm px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:border-[var(--color-primary)]">
+          <option value="">Alle Fischarten</option>
+        </select>
+        <select id="filter-jahr" onchange="applyFilters()"
+          class="bg-white border border-gray-200 rounded-xl text-sm px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:border-[var(--color-primary)]">
+          <option value="">Alle Jahre</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div id="faenge-loading" class="text-center py-16">
+        <div class="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-3 text-gray-500">Lade Fangbuch...</p>
+      </div>
+
+      <!-- Top 3 -->
+      <div id="top3-section" class="hidden mb-8">
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4" id="top3-label">Top 3 nach Gewicht</p>
+        <div id="top3-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- Table -->
+      <div id="faenge-table-wrap" class="hidden bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 w-12">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">Mitglied</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">Fischart</th>
+                <th onclick="setSortKey('gewicht')" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-400 cursor-pointer select-none hover:text-[var(--color-primary)]" title="Sortieren">
+                  Gewicht
+                </th>
+                <th onclick="setSortKey('laenge')" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-400 cursor-pointer select-none hover:text-[var(--color-primary)]" title="Sortieren">
+                  Länge
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 hidden sm:table-cell">Gewässer</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 hidden md:table-cell">
+                  Datum
+                </th>
+                <th class="px-4 py-3 w-16"></th>
+              </tr>
+            </thead>
+            <tbody id="faenge-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty (Ranking) -->
+      <div id="faenge-empty" class="hidden text-center py-16">
+        <div class="text-6xl mb-4">🎣</div>
+        <p class="text-lg text-gray-500 mb-4">Noch keine Fänge eingetragen.</p>
+        <button onclick="openAddModal()"
+          class="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition">
+          <i class="fa-solid fa-plus"></i>Ersten Fang eintragen
+        </button>
+      </div>
+
+      <!-- Empty (Meine Fänge) -->
+      <div id="meine-faenge-empty" class="hidden text-center py-16">
+        <div class="text-6xl mb-4">🎣</div>
+        <p class="text-lg text-gray-500 mb-4">Du hast noch keine Fänge eingetragen.</p>
+        <button onclick="openAddModal()"
+          class="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition">
+          <i class="fa-solid fa-plus"></i>Ersten Fang eintragen
+        </button>
+      </div>
+
+      <!-- Error -->
+      <div id="faenge-error" class="hidden text-center py-16">
+        <div class="text-6xl mb-4">⚠️</div>
+        <p class="text-red-500">Fehler beim Laden. Bitte Seite neu laden.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay"
+    class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4"
+    style="display:none">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <h2 id="modal-title" class="text-lg font-semibold text-[var(--color-dark)]">Fang eintragen</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      <form id="fang-form" class="p-6">
+        <input type="hidden" id="edit-id" value="">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Fischart *</label>
+            <select id="f-fischart" required
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+              <option value="">Fischart wählen...</option>
+              <option>Aal</option>
+              <option>Bachforelle</option>
+              <option>Barsch</option>
+              <option>Brachse</option>
+              <option>Döbel</option>
+              <option>Hecht</option>
+              <option>Karpfen</option>
+              <option>Regenbogenforelle</option>
+              <option>Rotauge</option>
+              <option>Rotfeder</option>
+              <option>Schleie</option>
+              <option>Weißkarpfen</option>
+              <option>Wels</option>
+              <option>Zander</option>
+              <option>Sonstige</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Datum *</label>
+            <input type="date" id="f-datum" required
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Gewässer</label>
+            <input type="text" id="f-gewaesser" placeholder="z.B. Bottwarsee"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Gewicht (g)</label>
+            <input type="number" id="f-gewicht" min="1" step="1" placeholder="z.B. 2500"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Länge (cm)</label>
+            <input type="number" id="f-laenge" min="1" step="0.1" placeholder="z.B. 65"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Bemerkung</label>
+            <textarea id="f-bemerkung" rows="2" placeholder="z.B. Schöner Fang am frühen Morgen..."
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)] resize-none"></textarea>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" onclick="closeModal()"
+            class="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50 transition">
+            Abbrechen
+          </button>
+          <button type="submit" id="modal-submit-btn"
+            class="flex-1 bg-[var(--color-primary)] text-white rounded-xl py-2.5 text-sm font-semibold hover:opacity-90 transition">
+            Speichern
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ProtectedLayout>
+
+<script>
+  import { requireAuth } from "../../lib/authGuard.js";
+  await requireAuth();
+
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  const storageKey = Object.keys(localStorage).find(k => k.includes('auth-token'));
+  const stored = storageKey ? JSON.parse(localStorage.getItem(storageKey) || '{}') : {};
+  const jwt = stored?.access_token;
+  const userId = stored?.user?.id;
+
+  let allFaenge: any[] = [];
+  let profileMap = new Map<string, string>();
+  let currentSort = 'gewicht';
+  let currentFischart = '';
+  let currentJahr = '';
+  let currentView = 'alle';
+
+  function showToast(msg: string, type: 'success' | 'error' = 'success') {
+    const div = document.createElement('div');
+    div.style.cssText = [
+      'position:fixed;bottom:24px;right:24px;z-index:9999',
+      'padding:13px 20px;border-radius:12px',
+      `background:${type === 'error' ? '#dc2626' : '#16a34a'};color:#fff`,
+      'font-size:14px;font-weight:500;font-family:inherit',
+      'display:flex;align-items:center;gap:10px',
+      'box-shadow:0 4px 20px rgba(0,0,0,.18)',
+      'transform:translateY(10px);opacity:0',
+      'transition:opacity .25s ease,transform .25s ease',
+      'max-width:360px;line-height:1.4',
+    ].join(';');
+    div.innerHTML = `<span>${msg}</span>`;
+    document.body.appendChild(div);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      div.style.opacity = '1';
+      div.style.transform = 'translateY(0)';
+    }));
+    setTimeout(() => {
+      div.style.opacity = '0';
+      div.style.transform = 'translateY(10px)';
+      setTimeout(() => div.remove(), 300);
+    }, 4000);
+  }
+
+  function esc(s: any) {
+    return String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+  }
+
+  function formatDate(d: string) {
+    return new Date(d + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function formatGewicht(g: number | null) {
+    if (g == null) return '—';
+    return g >= 1000 ? (g / 1000).toFixed(2).replace('.', ',') + ' kg' : g + ' g';
+  }
+
+  function formatLaenge(cm: number | null) {
+    if (cm == null) return '—';
+    return cm + ' cm';
+  }
+
+  function rankBadge(i: number) {
+    if (i === 0) return '<span class="text-lg leading-none">🥇</span>';
+    if (i === 1) return '<span class="text-lg leading-none">🥈</span>';
+    if (i === 2) return '<span class="text-lg leading-none">🥉</span>';
+    return `<span class="text-sm text-gray-400">${i + 1}</span>`;
+  }
+
+  function getRankingData() {
+    let data = [...allFaenge];
+    if (currentFischart) data = data.filter(f => f.fischart === currentFischart);
+    if (currentJahr) data = data.filter(f => String(f.datum ?? '').startsWith(currentJahr));
+    if (currentSort === 'laenge') {
+      data.sort((a, b) => (b.laenge ?? -Infinity) - (a.laenge ?? -Infinity));
+    } else {
+      data.sort((a, b) => (b.gewicht ?? -Infinity) - (a.gewicht ?? -Infinity));
+    }
+    return data;
+  }
+
+  function getMeineFaenge() {
+    return [...allFaenge]
+      .filter(f => f.user_id === userId)
+      .sort((a, b) => (b.datum ?? '').localeCompare(a.datum ?? ''));
+  }
+
+  function render() {
+    const tableWrap = document.getElementById('faenge-table-wrap');
+    const emptyEl = document.getElementById('faenge-empty');
+    const meineEmptyEl = document.getElementById('meine-faenge-empty');
+    const top3Section = document.getElementById('top3-section');
+    const top3Cards = document.getElementById('top3-cards');
+    const top3Label = document.getElementById('top3-label');
+    const tbody = document.getElementById('faenge-tbody');
+    const rankingControls = document.getElementById('ranking-controls');
+
+    // Reset all states
+    [emptyEl, meineEmptyEl].forEach(el => el?.classList.add('hidden'));
+
+    if (currentView === 'meine') {
+      rankingControls?.classList.add('hidden');
+      top3Section?.classList.add('hidden');
+
+      const data = getMeineFaenge();
+      if (!data.length) {
+        tableWrap?.classList.add('hidden');
+        meineEmptyEl?.classList.remove('hidden');
+        return;
+      }
+      tableWrap?.classList.remove('hidden');
+
+      if (tbody) {
+        tbody.innerHTML = data.map((f, i) => {
+          return `<tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-center text-sm text-gray-400">${i + 1}</td>
+            <td class="px-4 py-3 font-medium text-[var(--color-dark)] max-w-[140px] truncate">${esc(profileMap.get(f.user_id) || 'Ich')}</td>
+            <td class="px-4 py-3">
+              <span class="inline-block bg-[#d1e5e3] text-[var(--color-secondary)] text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">${esc(f.fischart)}</span>
+            </td>
+            <td class="px-4 py-3 text-right font-mono text-sm whitespace-nowrap">${formatGewicht(f.gewicht)}</td>
+            <td class="px-4 py-3 text-right font-mono text-sm whitespace-nowrap">${formatLaenge(f.laenge)}</td>
+            <td class="px-4 py-3 text-gray-500 text-sm hidden sm:table-cell">${f.gewaesser ? esc(f.gewaesser) : '—'}</td>
+            <td class="px-4 py-3 text-gray-500 text-sm hidden md:table-cell whitespace-nowrap">${formatDate(f.datum)}</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-1 justify-end">
+                <button onclick="editFang('${f.id}')" class="p-1.5 text-gray-400 hover:text-[var(--color-primary)] transition rounded-lg hover:bg-gray-100" title="Bearbeiten">
+                  <i class="fa-solid fa-pen text-xs"></i>
+                </button>
+                <button onclick="deleteFang('${f.id}')" class="p-1.5 text-gray-400 hover:text-red-500 transition rounded-lg hover:bg-red-50" title="Löschen">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+      return;
+    }
+
+    // --- Ranking-Modus ---
+    rankingControls?.classList.remove('hidden');
+
+    // Sort tab styles
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.classList.remove('bg-[var(--color-primary)]', 'text-white');
+      btn.classList.add('text-gray-600');
+    });
+    const activeBtn = document.getElementById(`sort-${currentSort}`);
+    if (activeBtn) {
+      activeBtn.classList.add('bg-[var(--color-primary)]', 'text-white');
+      activeBtn.classList.remove('text-gray-600');
+    }
+
+    const data = getRankingData();
+
+    if (!data.length) {
+      tableWrap?.classList.add('hidden');
+      top3Section?.classList.add('hidden');
+      emptyEl?.classList.remove('hidden');
+      return;
+    }
+
+    tableWrap?.classList.remove('hidden');
+    top3Section?.classList.remove('hidden');
+
+    // Top 3
+    if (top3Label) top3Label.textContent = `Top 3 nach ${currentSort === 'laenge' ? 'Länge' : 'Gewicht'}`;
+    const top3 = data.slice(0, 3);
+    if (top3Cards) {
+      const medals = ['🥇', '🥈', '🥉'];
+      const borders = ['border-yellow-300 shadow-md', 'border-gray-200 shadow-sm', 'border-gray-200 shadow-sm'];
+      top3Cards.innerHTML = top3.map((f, i) => {
+        const val = currentSort === 'laenge' ? formatLaenge(f.laenge) : formatGewicht(f.gewicht);
+        const name = profileMap.get(f.user_id) || 'Unbekannt';
+        return `<div class="bg-white rounded-2xl border ${borders[i]} p-5 text-center">
+          <div class="text-3xl mb-2">${medals[i]}</div>
+          <p class="font-bold text-lg text-[var(--color-dark)]">${val}</p>
+          <p class="text-sm font-medium text-[var(--color-primary)] mt-1">${esc(f.fischart)}</p>
+          <p class="text-xs text-gray-400 mt-1">${esc(name)}</p>
+          ${f.gewaesser ? `<p class="text-xs text-gray-300 mt-0.5">${esc(f.gewaesser)}</p>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // Table
+    if (tbody) {
+      tbody.innerHTML = data.map((f, i) => {
+        const name = profileMap.get(f.user_id) || 'Unbekannt';
+        const isOwn = f.user_id === userId;
+        return `<tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 text-center">${rankBadge(i)}</td>
+          <td class="px-4 py-3 font-medium text-[var(--color-dark)] max-w-[140px] truncate">${esc(name)}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block bg-[#d1e5e3] text-[var(--color-secondary)] text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">${esc(f.fischart)}</span>
+          </td>
+          <td class="px-4 py-3 text-right font-mono text-sm whitespace-nowrap">${formatGewicht(f.gewicht)}</td>
+          <td class="px-4 py-3 text-right font-mono text-sm whitespace-nowrap">${formatLaenge(f.laenge)}</td>
+          <td class="px-4 py-3 text-gray-500 text-sm hidden sm:table-cell">${f.gewaesser ? esc(f.gewaesser) : '—'}</td>
+          <td class="px-4 py-3 text-gray-500 text-sm hidden md:table-cell whitespace-nowrap">${formatDate(f.datum)}</td>
+          <td class="px-4 py-3">
+            ${isOwn ? `<div class="flex items-center gap-1 justify-end">
+              <button onclick="editFang('${f.id}')" class="p-1.5 text-gray-400 hover:text-[var(--color-primary)] transition rounded-lg hover:bg-gray-100" title="Bearbeiten">
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <button onclick="deleteFang('${f.id}')" class="p-1.5 text-gray-400 hover:text-red-500 transition rounded-lg hover:bg-red-50" title="Löschen">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>` : ''}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  function setView(v: string) {
+    currentView = v;
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.classList.remove('bg-[var(--color-primary)]', 'text-white');
+      btn.classList.add('text-gray-600');
+    });
+    const activeView = document.getElementById(`view-${v}`);
+    if (activeView) {
+      activeView.classList.add('bg-[var(--color-primary)]', 'text-white');
+      activeView.classList.remove('text-gray-600');
+    }
+    render();
+  }
+
+  async function loadFaenge() {
+    try {
+      const [faengeRes, profRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/faenge?order=created_at.desc`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${jwt}` }
+        }),
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${jwt}` }
+        })
+      ]);
+
+      if (!faengeRes.ok) throw new Error('HTTP ' + faengeRes.status);
+      const faenge = await faengeRes.json();
+      const profiles = profRes.ok ? await profRes.json() : [];
+
+      allFaenge = faenge;
+      profileMap = new Map(profiles.map((p: any) => [p.id, p.full_name || 'Unbekannt']));
+
+      // Populate filters
+      const arten = [...new Set(faenge.map((f: any) => f.fischart))].sort() as string[];
+      const artSelect = document.getElementById('filter-fischart') as HTMLSelectElement;
+      arten.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = a;
+        artSelect?.appendChild(opt);
+      });
+
+      const jahre = [...new Set(faenge.map((f: any) => String(f.datum ?? '').slice(0, 4)).filter(Boolean))].sort().reverse() as string[];
+      const jahrSelect = document.getElementById('filter-jahr') as HTMLSelectElement;
+      jahre.forEach(j => {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = j;
+        jahrSelect?.appendChild(opt);
+      });
+
+      document.getElementById('faenge-loading')?.classList.add('hidden');
+      render();
+    } catch {
+      document.getElementById('faenge-loading')?.classList.add('hidden');
+      document.getElementById('faenge-error')?.classList.remove('hidden');
+    }
+  }
+
+  function setSortKey(key: string) {
+    currentSort = key;
+    render();
+  }
+
+  function applyFilters() {
+    currentFischart = (document.getElementById('filter-fischart') as HTMLSelectElement)?.value ?? '';
+    currentJahr = (document.getElementById('filter-jahr') as HTMLSelectElement)?.value ?? '';
+    render();
+  }
+
+  function openAddModal() {
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = 'Fang eintragen';
+    (document.getElementById('edit-id') as HTMLInputElement).value = '';
+    (document.getElementById('fang-form') as HTMLFormElement).reset();
+    (document.getElementById('f-datum') as HTMLInputElement).value = new Date().toISOString().slice(0, 10);
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) { overlay.style.display = 'flex'; }
+  }
+
+  function closeModal() {
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  function editFang(id: string) {
+    const f = allFaenge.find(x => x.id === id);
+    if (!f) return;
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = 'Fang bearbeiten';
+    (document.getElementById('edit-id') as HTMLInputElement).value = f.id;
+    (document.getElementById('f-fischart') as HTMLSelectElement).value = f.fischart;
+    (document.getElementById('f-datum') as HTMLInputElement).value = f.datum;
+    (document.getElementById('f-gewicht') as HTMLInputElement).value = f.gewicht ?? '';
+    (document.getElementById('f-laenge') as HTMLInputElement).value = f.laenge ?? '';
+    (document.getElementById('f-gewaesser') as HTMLInputElement).value = f.gewaesser ?? '';
+    (document.getElementById('f-bemerkung') as HTMLTextAreaElement).value = f.bemerkung ?? '';
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) overlay.style.display = 'flex';
+  }
+
+  async function deleteFang(id: string) {
+    if (!confirm('Diesen Fang wirklich löschen?')) return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/faenge?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${jwt}` }
+      });
+      if (!res.ok) throw new Error();
+      allFaenge = allFaenge.filter(f => f.id !== id);
+      render();
+      showToast('Fang gelöscht');
+    } catch {
+      showToast('Löschen fehlgeschlagen', 'error');
+    }
+  }
+
+  async function saveFang(e: Event) {
+    e.preventDefault();
+    const btn = document.getElementById('modal-submit-btn') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Speichern...';
+
+    const editId = (document.getElementById('edit-id') as HTMLInputElement).value;
+    const rawGewicht = (document.getElementById('f-gewicht') as HTMLInputElement).value;
+    const rawLaenge = (document.getElementById('f-laenge') as HTMLInputElement).value;
+
+    const body: any = {
+      fischart: (document.getElementById('f-fischart') as HTMLSelectElement).value,
+      datum: (document.getElementById('f-datum') as HTMLInputElement).value,
+      gewicht: rawGewicht ? Number(rawGewicht) : null,
+      laenge: rawLaenge ? Number(rawLaenge) : null,
+      gewaesser: (document.getElementById('f-gewaesser') as HTMLInputElement).value || null,
+      bemerkung: (document.getElementById('f-bemerkung') as HTMLTextAreaElement).value || null,
+    };
+
+    try {
+      if (editId) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/faenge?id=eq.${editId}`, {
+          method: 'PATCH',
+          headers: {
+            apikey: SUPABASE_KEY, Authorization: `Bearer ${jwt}`,
+            'Content-Type': 'application/json', Prefer: 'return=representation'
+          },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error();
+        const updated = (await res.json())[0];
+        const idx = allFaenge.findIndex(f => f.id === editId);
+        if (idx !== -1) allFaenge[idx] = { ...allFaenge[idx], ...updated };
+        showToast('Fang aktualisiert');
+      } else {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/faenge`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY, Authorization: `Bearer ${jwt}`,
+            'Content-Type': 'application/json', Prefer: 'return=representation'
+          },
+          body: JSON.stringify({ ...body, user_id: userId })
+        });
+        if (!res.ok) throw new Error();
+        const created = (await res.json())[0];
+        allFaenge.unshift(created);
+        showToast('Fang eingetragen!');
+      }
+      closeModal();
+      render();
+    } catch {
+      showToast('Fehler beim Speichern', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Speichern';
+    }
+  }
+
+  document.getElementById('modal-overlay')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  document.getElementById('fang-form')?.addEventListener('submit', saveFang);
+  document.getElementById('view-alle')?.addEventListener('click', () => setView('alle'));
+  document.getElementById('view-meine')?.addEventListener('click', () => setView('meine'));
+
+  (window as any).setSortKey = setSortKey;
+  (window as any).applyFilters = applyFilters;
+  (window as any).openAddModal = openAddModal;
+  (window as any).closeModal = closeModal;
+  (window as any).editFang = editFang;
+  (window as any).deleteFang = deleteFang;
+
+  loadFaenge();
+</script>

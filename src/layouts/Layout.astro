@@ -84,6 +84,11 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
               >Aktuelles</a
             >
           </li>
+          <li class="nav-member-only">
+            <a href="/mitglieder/faenge" class="hover:text-[var(--color-secondary)]"
+              >Fangbuch</a
+            >
+          </li>
         </ul>
 
         <!-- Login Button (ausgeloggt) -->
@@ -249,6 +254,11 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
             >Aktuelles</a
           >
         </li>
+        <li class="nav-member-only">
+          <a href="/mitglieder/faenge" class="block text-lg hover:text-[var(--color-secondary)]"
+            >Fangbuch</a
+          >
+        </li>
         <li id="mobile-login-li" class="mt-4">
           <a href="/mitglieder/login" class="">
             <MuiButton client:load text="Login" btnType="dark" size="small" />
@@ -360,7 +370,7 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
       </div>
       <div class="border-t border-gray-100">
         <div class="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischerverein. Alle Rechte vorbehalten.</span>
+          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischerverein Oberstenfeld Gronau e.V. Alle Rechte vorbehalten.</span>
           <a
             href="https://mavatech-solutions.de"
             target="_blank"
