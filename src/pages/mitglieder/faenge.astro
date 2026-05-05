@@ -192,12 +192,12 @@ import Badge from "../../components/Badge.astro";
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Gewässer</label>
-            <input type="text" id="f-gewaesser" list="gewaesser-list" placeholder="Gewässer wählen oder eingeben"
+            <select id="f-gewaesser"
               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]">
-            <datalist id="gewaesser-list">
-              <option value="Alter Badeweiher Burk"></option>
-              <option value="Mittlerer Helingweiher"></option>
-            </datalist>
+              <option value="">Gewässer wählen...</option>
+              <option>Alter Badeweiher Burk</option>
+              <option>Mittlerer Helingweiher</option>
+            </select>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Gewicht (g)</label>
