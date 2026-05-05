@@ -81,7 +81,7 @@ import Badge from "../../components/Badge.astro";
       </div>
 
       <!-- Table -->
-      <div id="faenge-table-wrap" class="hidden bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div id="faenge-table-wrap" class="hidden bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-4">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-100">
@@ -105,6 +105,19 @@ import Badge from "../../components/Badge.astro";
             <tbody id="faenge-tbody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="hidden flex items-center justify-between gap-4 py-2">
+        <button id="page-prev"
+          class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 border border-gray-200 bg-white px-4 py-2 rounded-xl hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition disabled:opacity-40 disabled:pointer-events-none">
+          <i class="fa-solid fa-chevron-left text-xs"></i> Zurück
+        </button>
+        <span id="page-info" class="text-sm text-gray-400"></span>
+        <button id="page-next"
+          class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 border border-gray-200 bg-white px-4 py-2 rounded-xl hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition disabled:opacity-40 disabled:pointer-events-none">
+          Weiter <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
       </div>
 
       <!-- Empty (Ranking) -->
@@ -225,12 +238,14 @@ import Badge from "../../components/Badge.astro";
   const jwt = stored?.access_token;
   const userId = stored?.user?.id;
 
+  const PAGE_SIZE = 25;
   let allFaenge: any[] = [];
   let profileMap = new Map<string, string>();
   let currentSort = 'gewicht';
   let currentFischart = '';
   let currentJahr = '';
   let currentView = 'alle';
+  let currentPage = 1;
 
   function showToast(msg: string, type: 'success' | 'error' = 'success') {
     const div = document.createElement('div');
@@ -399,13 +414,34 @@ import Badge from "../../components/Badge.astro";
       }).join('');
     }
 
-    // Table
+    // Pagination
+    const totalPages = Math.ceil(data.length / PAGE_SIZE);
+    currentPage = Math.min(currentPage, totalPages);
+    const pageStart = (currentPage - 1) * PAGE_SIZE;
+    const pageData = data.slice(pageStart, pageStart + PAGE_SIZE);
+
+    const paginationEl = document.getElementById('pagination');
+    const pageInfo = document.getElementById('page-info');
+    const pagePrev = document.getElementById('page-prev') as HTMLButtonElement | null;
+    const pageNext = document.getElementById('page-next') as HTMLButtonElement | null;
+
+    if (totalPages > 1) {
+      paginationEl?.classList.remove('hidden');
+      if (pageInfo) pageInfo.textContent = `Seite ${currentPage} von ${totalPages} · ${data.length} Einträge`;
+      if (pagePrev) pagePrev.disabled = currentPage <= 1;
+      if (pageNext) pageNext.disabled = currentPage >= totalPages;
+    } else {
+      paginationEl?.classList.add('hidden');
+    }
+
+    // Table rows (only current page, but rank index = global position)
     if (tbody) {
-      tbody.innerHTML = data.map((f, i) => {
+      tbody.innerHTML = pageData.map((f, i) => {
+        const globalIndex = pageStart + i;
         const name = profileMap.get(f.user_id) || 'Unbekannt';
         const isOwn = f.user_id === userId;
         return `<tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-          <td class="px-4 py-3 text-center">${rankBadge(i)}</td>
+          <td class="px-4 py-3 text-center">${rankBadge(globalIndex)}</td>
           <td class="px-4 py-3 font-medium text-[var(--color-dark)] max-w-[140px] truncate">${esc(name)}</td>
           <td class="px-4 py-3">
             <span class="inline-block bg-[#d1e5e3] text-[var(--color-secondary)] text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">${esc(f.fischart)}</span>
@@ -431,6 +467,7 @@ import Badge from "../../components/Badge.astro";
 
   function setView(v: string) {
     currentView = v;
+    currentPage = 1;
     document.querySelectorAll('.view-btn').forEach(btn => {
       btn.classList.remove('bg-[var(--color-primary)]', 'text-white');
       btn.classList.add('text-gray-600');
@@ -442,6 +479,7 @@ import Badge from "../../components/Badge.astro";
     }
     render();
   }
+
 
   async function loadFaenge() {
     try {
@@ -488,12 +526,14 @@ import Badge from "../../components/Badge.astro";
 
   function setSortKey(key: string) {
     currentSort = key;
+    currentPage = 1;
     render();
   }
 
   function applyFilters() {
     currentFischart = (document.getElementById('filter-fischart') as HTMLSelectElement)?.value ?? '';
     currentJahr = (document.getElementById('filter-jahr') as HTMLSelectElement)?.value ?? '';
+    currentPage = 1;
     render();
   }
 
@@ -609,6 +649,16 @@ import Badge from "../../components/Badge.astro";
   document.getElementById('fang-form')?.addEventListener('submit', saveFang);
   document.getElementById('view-alle')?.addEventListener('click', () => setView('alle'));
   document.getElementById('view-meine')?.addEventListener('click', () => setView('meine'));
+  document.getElementById('page-prev')?.addEventListener('click', () => {
+    currentPage -= 1;
+    render();
+    document.getElementById('faenge-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.getElementById('page-next')?.addEventListener('click', () => {
+    currentPage += 1;
+    render();
+    document.getElementById('faenge-table-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   (window as any).setSortKey = setSortKey;
   (window as any).applyFilters = applyFilters;
