@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Badge from "../components/Badge.astro";
 import BecomeMember from "../components/BecomeMember.astro";
 import DynamicGallery from "../components/DynamicGallery.jsx";
+import headerGalerie from "../assets/images/header-galerie.jpeg";
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -12,9 +13,11 @@ const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   title="Galerie"
   description="Entdecke die schoensten Momente und Aktivitaeten unseres Fischervereins in unserer Bildergalerie."
 >
-  <section class="bg-[var(--color-secondary)] text-white">
+  <section class="relative text-white overflow-hidden">
+    <img src={headerGalerie.src} alt="" class="absolute inset-0 w-full h-full object-cover object-center" aria-hidden="true" />
+    <div class="absolute inset-0 bg-[var(--color-secondary)]/80"></div>
     <div class="h-[120px]"></div>
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 relative z-10">
       <div class="w-full min-[992px]:max-w-[50%]">
         <h1 class="text-4xl font-bold mb-4">Galerie</h1>
         <p class="text-lg mb-6">

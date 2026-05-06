@@ -1,15 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Badge from "../components/Badge.astro";
+import headerKontakt from "../assets/images/header-kontakt.jpeg";
 ---
 
 <Layout
   title="Kontakt"
   description="Nimm Kontakt mit unserem Fischerverein auf und erfahre mehr über unsere Aktivitäten."
 >
-  <section class="bg-[var(--color-secondary)] text-white">
+  <section class="relative text-white overflow-hidden">
+    <img src={headerKontakt.src} alt="" class="absolute inset-0 w-full h-full object-cover object-center" aria-hidden="true" />
+    <div class="absolute inset-0 bg-[var(--color-secondary)]/80"></div>
     <div class="h-[120px]"></div>
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 relative z-10">
       <div class="w-full min-[992px]:max-w-[50%]">
         <h1 class="text-4xl font-bold mb-4">Kontakt</h1>
         <p class="text-lg mb-6">
