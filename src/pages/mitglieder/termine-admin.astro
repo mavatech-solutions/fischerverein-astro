@@ -11,7 +11,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
     <div class="bg-white shadow rounded-xl p-6 mb-10">
       <h2 class="h3 mb-6">Termin hinzufügen</h2>
       <form id="create-termin-form" class="grid grid-cols-12 gap-4">
-        <div class="col-span-12 md:col-span-4">
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
           <input id="t-titel" type="text" placeholder="Jahreshauptversammlung"
             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
@@ -22,11 +22,16 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
         </div>
         <div class="col-span-12 md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Enddatum (optional)</label>
+          <input id="t-enddatum" type="date"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
+        </div>
+        <div class="col-span-12 md:col-span-2">
           <label class="block text-sm font-medium text-gray-700 mb-1">Uhrzeit (optional)</label>
           <input id="t-uhrzeit" type="time"
             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
         </div>
-        <div class="col-span-12 md:col-span-4">
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 mb-1">Ort (optional)</label>
           <input id="t-ort" type="text" placeholder="Vereinsheim"
             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]" />
@@ -80,7 +85,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 text-gray-600">
             <tr>
-              <th class="px-4 py-3 rounded-l-lg">Datum</th>
+              <th class="px-4 py-3 rounded-l-lg">Datum / Zeitraum</th>
               <th class="px-4 py-3">Titel</th>
               <th class="px-4 py-3">Uhrzeit</th>
               <th class="px-4 py-3">Ort</th>
@@ -246,13 +251,18 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
       const safeTitel = escapeHtml(t.titel || '');
       const safeOrt   = escapeHtml(t.ort || '');
       const uhrzeit   = t.uhrzeit ? t.uhrzeit.slice(0, 5) : '';
-      const datum     = t.datum ? new Date(t.datum + 'T00:00:00').toLocaleDateString('de-DE') : '—';
+      const datumFmt  = t.datum ? new Date(t.datum + 'T00:00:00').toLocaleDateString('de-DE') : '—';
+      const enddatumFmt = t.enddatum ? new Date(t.enddatum + 'T00:00:00').toLocaleDateString('de-DE') : null;
+      const datum     = enddatumFmt ? `${datumFmt} – ${enddatumFmt}` : datumFmt;
 
       if (isEditing) {
         return `
         <tr class="border-t border-gray-100 bg-gray-50/60">
           <td class="px-4 py-3">
             <input id="et-datum-${t.id}" type="date" value="${t.datum}"
+              class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm mb-1" />
+            <label class="block text-xs text-gray-500 mb-0.5">Enddatum (optional)</label>
+            <input id="et-enddatum-${t.id}" type="date" value="${t.enddatum || ''}"
               class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm" />
           </td>
           <td class="px-4 py-3">
@@ -336,10 +346,11 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
   }
 
   async function saveTermin(id: string) {
-    const titel   = (document.getElementById(`et-titel-${id}`) as HTMLInputElement)?.value.trim();
-    const datum   = (document.getElementById(`et-datum-${id}`) as HTMLInputElement)?.value;
-    const uhrzeit = (document.getElementById(`et-uhrzeit-${id}`) as HTMLInputElement)?.value || null;
-    const ort     = (document.getElementById(`et-ort-${id}`) as HTMLInputElement)?.value.trim() || null;
+    const titel    = (document.getElementById(`et-titel-${id}`) as HTMLInputElement)?.value.trim();
+    const datum    = (document.getElementById(`et-datum-${id}`) as HTMLInputElement)?.value;
+    const enddatum = (document.getElementById(`et-enddatum-${id}`) as HTMLInputElement)?.value || null;
+    const uhrzeit  = (document.getElementById(`et-uhrzeit-${id}`) as HTMLInputElement)?.value || null;
+    const ort      = (document.getElementById(`et-ort-${id}`) as HTMLInputElement)?.value.trim() || null;
 
     if (!titel || !datum) { alert('Titel und Datum sind erforderlich.'); return; }
 
@@ -348,7 +359,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
     const res = await fetch(`${SUPABASE_URL}/rest/v1/termine?id=eq.${id}`, {
       method: 'PATCH',
       headers: { ...headers(), 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ titel, datum, uhrzeit, ort, tags }),
+      body: JSON.stringify({ titel, datum, enddatum, uhrzeit, ort, tags }),
     });
     if (!res.ok) { showToast('Fehler beim Speichern: ' + res.status, 'error'); return; }
 
@@ -384,6 +395,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
     e.preventDefault();
     const titel        = (document.getElementById('t-titel') as HTMLInputElement).value.trim();
     const datum        = (document.getElementById('t-datum') as HTMLInputElement).value;
+    const enddatum     = (document.getElementById('t-enddatum') as HTMLInputElement).value || null;
     const uhrzeit      = (document.getElementById('t-uhrzeit') as HTMLInputElement).value || null;
     const ort          = (document.getElementById('t-ort') as HTMLInputElement).value.trim() || null;
     const beschreibung = (document.getElementById('t-beschreibung') as HTMLTextAreaElement).value.trim() || null;
@@ -402,7 +414,7 @@ import ModeratorLayout from "../../layouts/ModeratorLayout.astro";
     const res = await fetch(`${SUPABASE_URL}/rest/v1/termine`, {
       method: 'POST',
       headers: { ...headers(), 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ titel, datum, uhrzeit, ort, beschreibung, tags: tagsStore.get('create-termin') || [] }),
+      body: JSON.stringify({ titel, datum, enddatum, uhrzeit, ort, beschreibung, tags: tagsStore.get('create-termin') || [] }),
     });
 
     if (!res.ok) {

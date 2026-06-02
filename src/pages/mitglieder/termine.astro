@@ -143,12 +143,29 @@ import Badge from "../../components/Badge.astro";
     ).join("")}</div>`;
   }
 
-  function formatDate(dateStr: string) {
+  function formatDate(dateStr: string, enddateStr?: string) {
     const d = new Date(dateStr + "T00:00:00");
+    if (enddateStr) {
+      const e = new Date(enddateStr + "T00:00:00");
+      const sameMonth = d.getMonth() === e.getMonth();
+      return {
+        day: `${d.getDate()}`,
+        dayEnd: `${e.getDate()}`,
+        monthShort: sameMonth ? MONTHS[d.getMonth()].slice(0, 3) : `${MONTHS[d.getMonth()].slice(0, 3)}`,
+        monthShortEnd: MONTHS[e.getMonth()].slice(0, 3),
+        weekday: d.toLocaleDateString("de-DE", { weekday: "long" }),
+        isRange: true,
+        sameMonth,
+      };
+    }
     return {
-      day: d.getDate(),
+      day: `${d.getDate()}`,
+      dayEnd: null,
       monthShort: MONTHS[d.getMonth()].slice(0, 3),
+      monthShortEnd: null,
       weekday: d.toLocaleDateString("de-DE", { weekday: "long" }),
+      isRange: false,
+      sameMonth: false,
     };
   }
 
@@ -160,11 +177,12 @@ import Badge from "../../components/Badge.astro";
       const start = `${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
       const endH = (h + 2) % 24;
       const end = `${String(endH).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
-      dates = `${dateStr}T${start}/${dateStr}T${end}`;
+      const endDateStr = t.enddatum ? t.enddatum.replaceAll("-", "") : dateStr;
+      dates = `${dateStr}T${start}/${endDateStr}T${end}`;
     } else {
-      const next = new Date(t.datum + "T00:00:00");
-      next.setDate(next.getDate() + 1);
-      dates = `${dateStr}/${next.toISOString().slice(0, 10).replaceAll("-", "")}`;
+      const endBase = t.enddatum ? new Date(t.enddatum + "T00:00:00") : new Date(t.datum + "T00:00:00");
+      endBase.setDate(endBase.getDate() + 1);
+      dates = `${dateStr}/${endBase.toISOString().slice(0, 10).replaceAll("-", "")}`;
     }
     const p = new URLSearchParams({ action: "TEMPLATE", text: t.titel, dates });
     if (t.beschreibung) p.set("details", t.beschreibung);
@@ -191,13 +209,14 @@ import Badge from "../../components/Badge.astro";
         const start = `${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
         const endH = (h + 2) % 24;
         const end = `${String(endH).padStart(2, "0")}${String(m).padStart(2, "0")}00`;
+        const endDateStr = t.enddatum ? t.enddatum.replaceAll("-", "") : dateStr;
         lines.push(`DTSTART;TZID=Europe/Berlin:${dateStr}T${start}`);
-        lines.push(`DTEND;TZID=Europe/Berlin:${dateStr}T${end}`);
+        lines.push(`DTEND;TZID=Europe/Berlin:${endDateStr}T${end}`);
       } else {
-        const next = new Date(t.datum + "T00:00:00");
-        next.setDate(next.getDate() + 1);
+        const endBase = t.enddatum ? new Date(t.enddatum + "T00:00:00") : new Date(t.datum + "T00:00:00");
+        endBase.setDate(endBase.getDate() + 1);
         lines.push(`DTSTART;VALUE=DATE:${dateStr}`);
-        lines.push(`DTEND;VALUE=DATE:${next.toISOString().slice(0, 10).replaceAll("-", "")}`);
+        lines.push(`DTEND;VALUE=DATE:${endBase.toISOString().slice(0, 10).replaceAll("-", "")}`);
       }
       lines.push("END:VEVENT");
     }
@@ -332,7 +351,7 @@ import Badge from "../../components/Badge.astro";
           <div class="space-y-3">`;
 
         for (const t of events) {
-          const d  = formatDate(t.datum);
+          const d  = formatDate(t.datum, t.enddatum);
           const tt = teilnahmeMap.get(t.id) || { ja: [], nein: [], userStatus: null };
           const uhrzeit = t.uhrzeit ? t.uhrzeit.slice(0, 5) + " Uhr" : "";
 
@@ -363,10 +382,21 @@ import Badge from "../../components/Badge.astro";
 
           html += `
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-4 hover:shadow-md transition-shadow">
-              <div class="flex-shrink-0 w-14 text-center pt-1">
+              <div class="flex-shrink-0 ${d.isRange ? 'w-24' : 'w-14'} text-center pt-1">
+                ${d.isRange ? `
+                <div class="text-xs text-gray-400 uppercase mb-0.5">${d.weekday.slice(0, 2)}.</div>
+                <div class="flex items-baseline justify-center gap-1">
+                  <span class="text-xl font-bold leading-none text-[var(--color-primary)]">${d.day}.</span>
+                  ${!d.sameMonth ? `<span class="text-xs text-gray-400 uppercase">${d.monthShort}</span>` : ''}
+                  <span class="text-gray-300 text-lg leading-none">–</span>
+                  <span class="text-xl font-bold leading-none text-[var(--color-primary)]">${d.dayEnd}.</span>
+                </div>
+                <div class="text-xs text-gray-400 uppercase mt-1">${d.monthShortEnd}</div>
+                ` : `
                 <div class="text-2xl font-bold leading-none text-[var(--color-primary)]">${d.day}</div>
                 <div class="text-sm text-gray-400 uppercase mt-1">${d.monthShort}</div>
                 <div class="text-sm text-gray-400 mt-1">${d.weekday.slice(0, 2)}.</div>
+                `}
               </div>
               <div class="w-px bg-gray-100 self-stretch flex-shrink-0"></div>
               <div class="flex-1 min-w-0">

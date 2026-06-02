@@ -6,9 +6,21 @@ import logoSrc from "../assets/images/logo.svg";
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
+  image?: string;
 }
 
-const { title, description = "Fischerverein – Webseite" } = Astro.props;
+const {
+  title,
+  description = "Fischerverein Oberstenfeld Gronau e.V. – Angelverein mit Tradition seit 1987.",
+  noindex = false,
+  image = "/favicon.png",
+} = Astro.props;
+
+const siteUrl = "https://fv-oberstenfeld-gronau.de";
+const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
+const ogImage = image.startsWith("http") ? image : `${siteUrl}${image}`;
+const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
 ---
 
 <html lang="de">
@@ -16,9 +28,26 @@ const { title, description = "Fischerverein – Webseite" } = Astro.props;
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <title>{title} | Fischerverein</title>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="Fischerverein Oberstenfeld Gronau e.V." />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <script is:inline>
       try {

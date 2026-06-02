@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /mitglieder/
+
+Sitemap: https://fv-oberstenfeld-gronau.de/sitemap-index.xml
