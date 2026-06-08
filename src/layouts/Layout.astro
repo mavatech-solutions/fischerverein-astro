@@ -49,6 +49,8 @@ const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
+    <slot name="head" />
+
     <script is:inline>
       try {
         const isAuthed = document.cookie.includes("sb-auth=1");

@@ -58,7 +58,8 @@ export default function GallerySection({ title, description, items = [] }) {
             <img
               src={item.thumb || item.src}
               alt={`${title} Vorschau ${index + 1}`}
-              loading="lazy"
+              loading={index < 6 ? 'eager' : 'lazy'}
+              fetchPriority={index < 3 ? 'high' : 'auto'}
               className="w-full object-cover transition duration-300 group-hover:scale-[1.03]"
               style={{ aspectRatio: item.aspectRatio || aspectRatios[index % aspectRatios.length] }}
             />

@@ -13,6 +13,7 @@ const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   title="Galerie"
   description="Entdecke die schoensten Momente und Aktivitaeten unseres Fischervereins in unserer Bildergalerie."
 >
+  <link rel="preconnect" href="https://i.imgur.com" slot="head" />
   <section class="relative text-white overflow-hidden">
     <img src={headerGalerie.src} alt="" class="absolute inset-0 w-full h-full object-cover object-center" aria-hidden="true" />
     <div class="absolute inset-0 bg-[var(--color-secondary)]/80"></div>
@@ -34,6 +35,12 @@ const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
       <div class="h-[120px]"></div>
     </div>
   </section>
+  <script is:inline define:vars={{ supabaseUrl, supabaseKey }}>
+    window.__galleryPromise = fetch(
+      `${supabaseUrl}/rest/v1/galerie_bilder?select=*&order=album.asc,sort_order.asc,created_at.asc`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    ).then(function(r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); });
+  </script>
   <div class="h-[100px]"></div>
   <div class="container mx-auto px-4">
     <DynamicGallery

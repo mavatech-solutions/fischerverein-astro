@@ -9,12 +9,21 @@ const ALBUM_DESC = {
   'Am Wasser': 'Gemeinsame Erlebnisse bei Festen, Treffen und Aktionen am Wasser.',
 };
 
-function driveUrl(url) {
-  const id = url?.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1]
-    ?? url?.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1];
-  if (id && url.includes('drive.google.com')) {
-    return `https://lh3.googleusercontent.com/d/${id}`;
+function imageUrl(url, { driveSuffix = '', imgurSuffix = '' } = {}) {
+  if (!url) return url;
+
+  // Google Drive
+  const driveId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1]
+    ?? url.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+  if (driveId && url.includes('drive.google.com')) {
+    return `https://lh3.googleusercontent.com/d/${driveId}${driveSuffix}`;
   }
+
+  // Imgur — insert suffix before the extension, e.g. ABC123.jpg → ABC123l.jpg
+  if (imgurSuffix && url.includes('imgur.com')) {
+    return url.replace(/(\.[a-zA-Z]+)(\?.*)?$/, `${imgurSuffix}$1$2`);
+  }
+
   return url;
 }
 
@@ -23,27 +32,25 @@ export default function DynamicGallery({ supabaseUrl, supabaseKey }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(
+    const promise = window.__galleryPromise ?? fetch(
       `${supabaseUrl}/rest/v1/galerie_bilder?select=*&order=album.asc,sort_order.asc,created_at.asc`,
       { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-    )
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
+    ).then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`));
+
+    promise
       .then(data => {
         const grouped = {};
         for (const row of data) {
           if (!grouped[row.album]) grouped[row.album] = [];
           grouped[row.album].push({
-            src: driveUrl(row.src),
-            thumb: driveUrl(row.thumb || row.src),
+            src: imageUrl(row.src),
+            thumb: imageUrl(row.thumb || row.src, { driveSuffix: '=w600', imgurSuffix: 'l' }),
             subHtml: row.caption ? `<p>${row.caption}</p>` : undefined,
           });
         }
         setAlbums(grouped);
       })
-      .catch(e => setError(e.message));
+      .catch(e => setError(String(e)));
   }, []);
 
   if (error) {
