@@ -12,7 +12,7 @@ interface Props {
 
 const {
   title,
-  description = "Fischerverein Oberstenfeld Gronau e.V. – Angelverein mit Tradition seit 1987.",
+  description = "Fischereiverein Oberstenfeld Gronau e.V. – Angelverein mit Tradition seit 1987.",
   noindex = false,
   image = "/favicon.png",
 } = Astro.props;
@@ -20,7 +20,7 @@ const {
 const siteUrl = "https://fv-oberstenfeld-gronau.de";
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogImage = image.startsWith("http") ? image : `${siteUrl}${image}`;
-const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
+const fullTitle = `${title} | Fischereiverein Oberstenfeld Gronau e.V.`;
 ---
 
 <html lang="de">
@@ -41,7 +41,7 @@ const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="de_DE" />
-    <meta property="og:site_name" content="Fischerverein Oberstenfeld Gronau e.V." />
+    <meta property="og:site_name" content="Fischereiverein Oberstenfeld Gronau e.V." />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -70,7 +70,7 @@ const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
       >
         <!-- Logo -->
         <a href="/" class="flex items-center">
-          <img src={logoSrc.src} alt="Fischerverein Logo" class=" w-auto max-w-[170px]" />
+          <img src={logoSrc.src} alt="Fischereiverein Logo" class=" w-auto max-w-[170px]" />
         </a>
 
         <!-- Desktop Links -->
@@ -344,7 +344,7 @@ const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
     <footer class="bg-white text-white">
       <div class="container mx-auto px-6 py-12 grid grid-cols-12 gap-6">
         <div class="col-span-12 md:col-span-3 text-center md:text-left">
-          <img src={logoSrc.src} alt="Fischerverein Logo" class="h-16 w-auto max-w-[170px] mx-auto md:mx-0 mb-3" />
+          <img src={logoSrc.src} alt="Fischereiverein Logo" class="h-16 w-auto max-w-[170px] mx-auto md:mx-0 mb-3" />
           <p class="text-base text-[var(--color-dark)]">
             Gemeinschaft, Natur und Tradition.
           </p>
@@ -391,7 +391,7 @@ const fullTitle = `${title} | Fischerverein Oberstenfeld Gronau e.V.`;
       </div>
       <div class="border-t border-gray-100">
         <div class="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischerverein Oberstenfeld Gronau e.V. Alle Rechte vorbehalten.</span>
+          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischereiverein Oberstenfeld Gronau e.V. Alle Rechte vorbehalten.</span>
           <a
             href="https://mavatech-solutions.de"
             target="_blank"

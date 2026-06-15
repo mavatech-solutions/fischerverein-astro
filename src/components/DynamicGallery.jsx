@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import GallerySection from './GallerySection.jsx';
 
-const ALBUM_ORDER = ['Am Wasser', 'Vereinsleben & Veranstaltungen', 'Angelwettbewerbe', 'Größte Fänge'];
+const ALBUM_ORDER = ['Am Wasser', 'Vereinsleben & Veranstaltungen', 'Größte Fänge'];
 const ALBUM_DESC = {
-  'Angelwettbewerbe': 'Impressionen unserer Turniere, von der Vorbereitung bis zur Siegerehrung.',
   'Größte Fänge': 'Die beeindruckendsten Fänge unserer Vereinsmitglieder.',
   'Vereinsleben & Veranstaltungen': 'Gemeinsame Erlebnisse bei Festen, Treffen und Aktionen am Wasser.',
-  'Am Wasser': 'Gemeinsame Erlebnisse bei Festen, Treffen und Aktionen am Wasser.',
+  'Am Wasser': 'Eindrücke und Impressionen vom Wasser.',
 };
 
 function imageUrl(url, { driveSuffix = '', imgurSuffix = '' } = {}) {

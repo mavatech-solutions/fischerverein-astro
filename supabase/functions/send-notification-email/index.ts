@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: `Fischerverein Oberstenfeld Gronau e.V <${FROM}>`,
+          from: `Fischereiverein Oberstenfeld Gronau e.V <${FROM}>`,
           to: FROM,
           reply_to: senderEmail,
           subject,
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: `Fischerverein Oberstenfeld Gronau e.V <${FROM}>`,
+          from: `Fischereiverein Oberstenfeld Gronau e.V <${FROM}>`,
           to: senderEmail,
           subject: 'Deine Nachricht ist bei uns angekommen',
           html: buildBestaetigungHtml(vorname),
@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: `Fischerverein Oberstenfeld Gronau e.V <${FROM}>`,
+        from: `Fischereiverein Oberstenfeld Gronau e.V <${FROM}>`,
         to: FROM,
         bcc: bccList,
         subject,
@@ -192,7 +192,7 @@ function buildBestaetigungHtml(vorname: string) {
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
   <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#2d7a72;padding:24px 32px">
-      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischerverein Oberstenfeld Gronau e.V</p>
+      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischereiverein Oberstenfeld Gronau e.V</p>
       <h1 style="margin:6px 0 0;color:#fff;font-size:22px;font-weight:700">Nachricht erhalten!</h1>
     </div>
     <div style="padding:32px">
@@ -202,7 +202,7 @@ function buildBestaetigungHtml(vorname: string) {
       </p>
       <p style="font-size:14px;color:#555;line-height:1.7;margin:0">
         Mit freundlichen Grüßen<br>
-        <strong style="color:#1a1a1a">Fischerverein Oberstenfeld Gronau e.V</strong>
+        <strong style="color:#1a1a1a">Fischereiverein Oberstenfeld Gronau e.V</strong>
       </p>
     </div>
     <div style="padding:14px 32px;background:#f9f9f9;border-top:1px solid #eee">
@@ -227,7 +227,7 @@ function buildKontaktHtml(
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
   <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#2d7a72;padding:24px 32px">
-      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischerverein</p>
+      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischereiverein</p>
       <h1 style="margin:6px 0 0;color:#fff;font-size:22px;font-weight:700">Neue Kontaktanfrage</h1>
     </div>
     <div style="padding:32px">
@@ -270,7 +270,7 @@ function buildTerminHtml(
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
   <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#2d7a72;padding:24px 32px">
-      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischerverein</p>
+      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischereiverein</p>
       <h1 style="margin:6px 0 0;color:#fff;font-size:22px;font-weight:700">Neuer Termin</h1>
     </div>
     <div style="padding:32px">
@@ -300,7 +300,7 @@ function buildBeitragHtml(titel: string, inhalt: string | null, autor: string | 
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
   <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
     <div style="background:#2d7a72;padding:24px 32px">
-      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischerverein</p>
+      <p style="margin:0;color:rgba(255,255,255,.75);font-size:12px;letter-spacing:.6px;text-transform:uppercase">Fischereiverein</p>
       <h1 style="margin:6px 0 0;color:#fff;font-size:22px;font-weight:700">Neues im Aktuelles</h1>
     </div>
     <div style="padding:32px">

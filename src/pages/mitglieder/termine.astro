@@ -17,7 +17,7 @@ import Badge from "../../components/Badge.astro";
           sei dabei!
         </p>
         <Badge text="Gemeinschaft" />
-        <Badge text="Termine" />
+        <Badge text="Nachhaltigkeit" />
         <Badge text="Tradition" />
       </div>
 
@@ -194,12 +194,12 @@ import Badge from "../../components/Badge.astro";
     const now = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15) + "Z";
     const lines: string[] = [
       "BEGIN:VCALENDAR", "VERSION:2.0",
-      "PRODID:-//Fischerverein//DE", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+      "PRODID:-//Fischereiverein//DE", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
     ];
     for (const t of events) {
       const dateStr = t.datum.replaceAll("-", "");
       lines.push("BEGIN:VEVENT");
-      lines.push(`UID:termin-${t.id}@fischerverein.local`);
+      lines.push(`UID:termin-${t.id}@Fischereiverein.local`);
       lines.push(`DTSTAMP:${now}`);
       lines.push(`SUMMARY:${t.titel}`);
       if (t.beschreibung) lines.push(`DESCRIPTION:${t.beschreibung.replaceAll("\n", "\\n")}`);
@@ -235,7 +235,7 @@ import Badge from "../../components/Badge.astro";
 
   function downloadAllIcs() {
     if (!termineAll.length) return;
-    triggerIcsDownload(buildIcsContent(termineAll), `fischerverein-termine-${currentYear}.ics`);
+    triggerIcsDownload(buildIcsContent(termineAll), `Fischereiverein-termine-${currentYear}.ics`);
   }
 
   function downloadSingleIcs(id: string) {

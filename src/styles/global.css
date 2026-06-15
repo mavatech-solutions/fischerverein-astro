@@ -68,7 +68,7 @@ header {
   border-radius: 1rem;
 }
 .counter-container {
-  transform: translateY(-60px) !important;
+  transform: translateY(-30px) !important;
 }
 
 .count-up-text {
@@ -150,7 +150,7 @@ html[data-admin="true"] #mobile-admin-link { display: block !important; }
 
 @media (min-width: 768px) {
   .counter-container {
-    transform: translateY(-50%);
+    transform: translateY(-50%) !important;
   }
 }
 
