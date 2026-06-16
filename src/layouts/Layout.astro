@@ -12,7 +12,7 @@ interface Props {
 
 const {
   title,
-  description = "Fischereiverein Oberstenfeld Gronau e.V. – Angelverein mit Tradition seit 1987.",
+  description = "Fischereiverein Oberstenfeld-Gronau e.V. – Angelverein mit Tradition seit 1987.",
   noindex = false,
   image = "/favicon.png",
 } = Astro.props;
@@ -20,7 +20,7 @@ const {
 const siteUrl = "https://fv-oberstenfeld-gronau.de";
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogImage = image.startsWith("http") ? image : `${siteUrl}${image}`;
-const fullTitle = `${title} | Fischereiverein Oberstenfeld Gronau e.V.`;
+const fullTitle = `${title} | Fischereiverein Oberstenfeld-Gronau e.V.`;
 ---
 
 <html lang="de">
@@ -41,7 +41,7 @@ const fullTitle = `${title} | Fischereiverein Oberstenfeld Gronau e.V.`;
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="de_DE" />
-    <meta property="og:site_name" content="Fischereiverein Oberstenfeld Gronau e.V." />
+    <meta property="og:site_name" content="Fischereiverein Oberstenfeld-Gronau e.V." />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -391,7 +391,7 @@ const fullTitle = `${title} | Fischereiverein Oberstenfeld Gronau e.V.`;
       </div>
       <div class="border-t border-gray-100">
         <div class="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischereiverein Oberstenfeld Gronau e.V. Alle Rechte vorbehalten.</span>
+          <span class="text-sm text-gray-400">© {new Date().getFullYear()} Fischereiverein Oberstenfeld-Gronau e.V. Alle Rechte vorbehalten.</span>
           <a
             href="https://mavatech-solutions.de"
             target="_blank"
